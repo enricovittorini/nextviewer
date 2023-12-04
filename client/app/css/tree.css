@@ -1,0 +1,143 @@
+/*
+p.tree,
+ul.tree,
+ul.tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.tree ul {
+  margin-left: 1.0em;
+}
+
+ul.tree li {
+  margin-left: 0.35em;
+  border-left: thin solid #000;
+  color: #369;
+  font-weight: normal;
+  font-size:normal;
+}
+
+ul.tree li:last-child {
+  border-left: none;
+}
+
+ul.tree li:before {
+  width: 0.9em;
+  height: 0.6em;
+  margin-right: 0.1em;
+  vertical-align: top;
+  border-bottom: thin solid #000;
+  content: "";
+  display: inline-block;
+}
+
+ul.tree li:last-child:before {
+  border-left: thin solid #000;
+}
+
+*/
+
+
+/*------------*/
+
+.tree{
+    --spacing : 1.5rem;
+    --spacingprop : 1.5rem;
+    --radius  : 8px;
+    --radiusprop  : 4px;
+  }
+  
+  .tree li{
+    display      : block;
+    position     : relative;
+    padding-left : calc(2 * var(--spacing) - var(--radius) - 2px);
+    font-weight: normal;
+  }
+  
+  .tree li.prop{
+    display      : block;
+    position     : relative;
+    padding-left : calc(2 * var(--spacing) - var(--radius) - 7px);
+    font-weight: normal;
+  }
+  
+  .tree ul{
+    margin-left  : calc(var(--radius) - var(--spacing));
+    padding-left : 0;
+  }
+  
+  .tree ul li{
+    border-left : 1px solid #ddd;
+  }
+  
+  .tree ul li:last-child{
+    border-color : transparent;
+  }
+  
+  .tree ul li::before{
+    content      : '';
+    display      : block;
+    position     : absolute;
+    top          : calc(var(--spacing) / -2);
+    left         : -1px;
+    width        : calc(var(--spacing) + 2px);
+    height       : calc(var(--spacing) + 1px);
+    border       : solid #ddd;
+    border-width : 0 0 1px 1px;
+  }
+  
+  .tree summary{
+    display : block;
+    cursor  : pointer;
+  }
+  
+  .tree summary::marker,
+  .tree summary::-webkit-details-marker{
+    display : none;
+  }
+  
+  .tree summary:focus{
+    outline : none;
+  }
+  
+  .tree summary:focus-visible{
+    outline : 1px dotted #000;
+  }
+  
+  .tree li::after,
+  .tree summary::before{
+    content       : '';
+    display       : block;
+    position      : absolute;
+    top           : calc(var(--spacing) / 2 - var(--radius));
+    left          : calc(var(--spacing) - var(--radius) - 1px);
+    width         : calc(2 * var(--radius));
+    height        : calc(2 * var(--radius));
+    border-radius : 50%;
+    background    : #ddd;
+  }
+  
+  
+  .tree li.prop::after
+  {
+    content       : '';
+    display       : block;
+    position      : absolute;
+    top           : calc(var(--spacingprop) / 2 - var(--radiusprop));
+    left          : calc(var(--spacingprop) - var(--radiusprop) - 1px);
+    width         : calc(2 * var(--radiusprop));
+    height        : calc(2 * var(--radiusprop));
+    border-radius : 50%;
+    background    : #ddd;
+  }
+  
+  .tree summary::before{
+    z-index    : 1;
+    background : #369 url('../img/expand-collapse.svg') 0 0;
+  }
+  
+  .tree details[open] > summary::before{
+    background-position : calc(-2 * var(--radius)) 0;
+  }

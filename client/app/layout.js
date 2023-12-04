@@ -1,0 +1,25 @@
+import { Inter } from 'next/font/google'
+import "bootstrap/dist/css/bootstrap.min.css";  
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import './css/tree.css';
+
+import Pat from './pat';
+
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata = {
+  title: 'tsviewer',
+  description: 'A DVB TS Viewer app',
+}
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en" data-bs-theme="dark">
+      <body>
+        <div id="container" className="container">
+          {children}
+        </div>
+      </body>
+    </html>
+  )
+}
