@@ -37,7 +37,7 @@ app.use(bodyParser.json()); // Add body-parser middleware to handle JSON data
 //-----------------------Uncomment for the build version -------------------------------//
 
 //const staticPath = path.join(__dirname, '../client/build');
-const staticPath = path.join(__dirname, '../tsviewer/out');
+const staticPath = path.join(__dirname, '../client/out');
 app.use(express.static(staticPath));
 
 
@@ -262,7 +262,7 @@ app.post('/resetcc', async function (req, res) {
 // Tutte le altre richieste di tipo GET non gestite dal metodo precedente, restituiranno l'applicazione REACT
 app.get('*', (req, res) => {
     //res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
-    res.sendFile(path.resolve(__dirname, '../tsviewer/out', 'index.html'));
+    res.sendFile(path.resolve(__dirname, '../client/out', 'index.html'));
 })
 
 
