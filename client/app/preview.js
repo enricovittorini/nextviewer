@@ -91,12 +91,12 @@ function Preview({ services, previewId, image, desc }) {
                             </select>
                         </div>
                     </form>
-
-                    {/*   <img className="img-thumbnail float-end"  src={previewImage} alt="Preview Thumbnail" />*/}
-
+                </div>
+                {/*   <img className="img-thumbnail float-end"  src={previewImage} alt="Preview Thumbnail" />*/}
+                <div className='col-12'>
                     <Image
-                        width={320}
-                        height={180}
+                        min-width={320}
+                        min-height={180}
                         className="img-thumbnail float-end"
                         src={previewImage}
                         alt="Preview Thumbnail" />
