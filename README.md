@@ -8,7 +8,7 @@ The back-end server listen on port 8081.
 ## Docker version
 A pre-package version is available as Docker image.
 
- ```docker pull enricovittorini/tsviewer:latest ```
+ ```docker pull enricovittorini/nextviewer:latest ```
 
 To allow the Docker image have access to the netowrk interfaces of the host server, run the image with the --net=host option
 
