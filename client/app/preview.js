@@ -76,33 +76,37 @@ function Preview({ services, previewId, image, desc }) {
 
     return (
         <>
+            <div className='row'>
+                <div className='col-12'>
+                    <form>
+                        <div className="mb-3">
+                            <select className="form-select form-select-sm" value={sid} onChange={handleServiceChange}>
+                                <option value="0"> No Preview</option>
+                                {serviceList !== undefined && serviceList.map(k => {
+                                    return (
+                                        <option key={k.id} value={k.id} >{k.id} - {k.name}</option>
+                                    )
+                                })}
 
-            <form>
-                <div className="mb-3">
-                    <select className="form-select form-select-sm" value={sid} onChange={handleServiceChange}>
-                        <option value="0"> No Preview</option>
-                        {serviceList !== undefined && serviceList.map(k => {
-                            return (
-                                <option key={k.id} value={k.id} >{k.id} - {k.name}</option>
-                            )
-                        })}
+                            </select>
+                        </div>
+                    </form>
 
+                    {/*   <img className="img-thumbnail float-end"  src={previewImage} alt="Preview Thumbnail" />*/}
 
-                    </select>
+                    <Image
+                        width={320}
+                        height={180}
+                        className="img-thumbnail float-end"
+                        src={previewImage}
+                        alt="Preview Thumbnail" />
                 </div>
-            </form>
+            </div >
 
-
-            {/*   <img className="img-thumbnail float-end"  src={previewImage} alt="Preview Thumbnail" />*/}
-            <div>
-            <Image
-            
-            width={320}
-            height={180}
-                className="img-thumbnail float-end"
-                src={previewImage}
-                alt="Preview Thumbnail" />
-            <p>{descripton}</p>
+            <div className='row'>
+                <div className='col-12'>
+                    <p>{descripton}</p>
+                </div>
             </div>
 
 

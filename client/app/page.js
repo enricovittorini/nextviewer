@@ -118,7 +118,7 @@ export default function Home() {
       </div>
 
       <div className='row'>
-        <div className='col-md-4'>
+        <div className='col-md-6 col-lg-4'>
           <div className='row'>
             <h6>PSI-SI</h6>
             <Pat data={allTables} />
@@ -130,7 +130,7 @@ export default function Home() {
             <Bat data={allTables} />
           </div>
         </div>
-        <div className='col-md-5'>
+        <div className='col-md-6 col-lg-5'>
           <div className='row'>
             <h6>Service List</h6>
             <ServiceList data={allTables} />
@@ -142,7 +142,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className='col-md-3'>
+        <div className='col-md-12 col-lg-3'>
           <div className='row'>
             <Preview services={clearServices} previewId={probeConfig.previewSid} image={previewImage} pids={allTables.pids} desc={previewPidDescription} />
           </div>
