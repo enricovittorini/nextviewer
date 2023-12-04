@@ -38,3 +38,6 @@ next-env.d.ts
 
 # Server
 server/node_modules
+
+#My Local 
+Dockerfile
