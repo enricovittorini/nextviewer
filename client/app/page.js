@@ -4,7 +4,6 @@ import ProbeConfig from './probeconfig';
 import SpinnerConnection from './spinnerConnection';
 import convertBitrate from './utils/convertBitrate';
 
-
 import Pat from './pat';
 import Cat from './cat';
 import Pmt from './pmt';
@@ -36,10 +35,14 @@ export default function Home() {
   const [previewPidDescription, setPreviewPidDescription] = useState('');
 
   useEffect(() => {
+    require("bootstrap/dist/js/bootstrap.bundle.min.js");
+  }, [])
+
+  useEffect(() => {
     if (!listening) {
       const events = new EventSource('/events');
+      
       // onerror version
-
       events.onerror = (e) => {
         console.log("An error occurred while attempting to connect.");
         setConnectionStatus('danger');
