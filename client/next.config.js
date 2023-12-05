@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  basePath: '/nextviewer',
   output: 'export',
-  basePath: '/nextviewer'
+
+ 
 }
 
 module.exports = nextConfig
