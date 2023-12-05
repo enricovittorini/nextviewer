@@ -1,4 +1,5 @@
 const express = require('express');
+const rewrite = require('express-urlrewrite');
 const cors = require('cors');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -30,6 +31,8 @@ let config = {
 
 
 const app = express();
+app.use(rewrite('/nextviewer/*', '/$1'));
+
 app.use(cors());
 app.use(bodyParser.json()); // Add body-parser middleware to handle JSON data
 
