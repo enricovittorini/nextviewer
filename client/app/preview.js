@@ -25,7 +25,7 @@ function Preview({ services, previewId, image, desc }) {
         setSid(selectedId);
 
         try {
-            const response = await fetch(`/${start_stop_preview}`, {
+            const response = await fetch(`/nextviewer/${start_stop_preview}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

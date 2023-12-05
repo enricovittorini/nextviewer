@@ -92,7 +92,7 @@ function ProbeConfig({ data }) {
         formJson.interfaceList = config.interfaceList;
 
         try {
-            const response = await fetch(`/config`, {
+            const response = await fetch(`/nextviewer/config`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ function ProbeConfig({ data }) {
     async function handleStop() {
 
         try {
-            const response = await fetch(`/stop`, {
+            const response = await fetch(`/nextviewer/stop`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ function ProbeConfig({ data }) {
     async function handleStart() {
 
         try {
-            const response = await fetch(`/start`, {
+            const response = await fetch(`/nextviewer/start`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

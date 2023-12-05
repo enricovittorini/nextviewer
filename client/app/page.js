@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation'
 import ProbeConfig from './probeconfig';
 import SpinnerConnection from './spinnerConnection';
 import convertBitrate from './utils/convertBitrate';
@@ -34,13 +35,16 @@ export default function Home() {
   const [previewImage, setPreviewImage] = useState(nopreview);
   const [previewPidDescription, setPreviewPidDescription] = useState('');
 
+
+
+
   useEffect(() => {
     require("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, [])
 
   useEffect(() => {
     if (!listening) {
-      const events = new EventSource('/events');
+      const events = new EventSource('/nextviewer/events');
       
       // onerror version
       events.onerror = (e) => {
