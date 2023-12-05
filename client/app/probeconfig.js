@@ -7,16 +7,17 @@ function ProbeIp({ config }) {
     const [address, setAddress] = useState(config.address ? config.address : '');
     const [port, setPort] = useState(config.port ? config.port : '');
 
-    return (<>
-        <div className='col-md-3'>
-            <label htmlFor="inputState" className="form-label">Address</label>
-            <input type="text" className="form-control form-control-sm" name="address" value={address} onChange={e => setAddress(e.target.value)}></input>
-        </div>
-        <div className='col-md-2'>
-            <label htmlFor="inputState" className="form-label" >Port</label>
-            <input type="text" className="form-control form-control-sm" name="port" value={port} onChange={e => setPort(e.target.value)}></input>
-        </div>
-    </>
+    return (
+        <>
+            <div className='col-md-3'>
+                <label htmlFor="inputState" className="form-label">Address</label>
+                <input type="text" className="form-control form-control-sm" name="address" value={address} onChange={e => setAddress(e.target.value)}></input>
+            </div>
+            <div className='col-md-2'>
+                <label htmlFor="inputState" className="form-label" >Port</label>
+                <input type="text" className="form-control form-control-sm" name="port" value={port} onChange={e => setPort(e.target.value)}></input>
+            </div>
+        </>
     )
 }
 
@@ -165,7 +166,7 @@ function ProbeConfig({ data }) {
             }
         } catch (error) {
             console.error('Error while starting probe:', error);
-           
+
 
         }
 
@@ -186,7 +187,7 @@ function ProbeConfig({ data }) {
         setInterface(data.interface === null ? data.interfaceList[0] : data.interface);
         //console.log(data.status)
         switch (data.status) {
-     
+
             case "running":
                 setButtonState({ startBtn: 'disabled', stopBtn: '' });
                 setFormStatus('disabled')
