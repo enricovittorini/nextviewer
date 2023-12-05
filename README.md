@@ -1,5 +1,5 @@
 # nextViewer
-This is a very experimental tool to view the strucutre of a TS. Mabe by a newbie just for fun and learn.
+This is a very experimental tool to view the strucutre of a TS. Made by a newbie just for fun and learn.
 Use it at your own risk :-)
 
 # How to use it
