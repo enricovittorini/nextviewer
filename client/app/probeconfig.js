@@ -26,8 +26,8 @@ function ProbeSrt({ config, probeType }) {
 
     const [address, setAddress] = useState(config.address ? config.address : '');
     const [port, setPort] = useState(config.port ? config.port : '');
-    const [latency, setLatency] = useState(config.latency ? config.latency : "100");
-    const [encryption, setEncryption] = useState(config.encryption ? config.encryption : '');
+    const [latency, setLatency] = useState(config.latency ? config.latency : "200");
+    const [encryption, setEncryption] = useState(config.encryption ? config.encryption : '0');
     const [passphrase, setPassphrase] = useState(config.passphrase ? config.passphrase : '');
 
     /*const handleTypeChange = (event) => {
@@ -40,12 +40,12 @@ function ProbeSrt({ config, probeType }) {
         <>
             <div className='col-md-6'>
                 <label htmlFor="inputState" className="form-label">Remote Address</label>
-                <input type="text" className="form-control form-control-sm" name="address" value={address} onChange={e => setAddress(e.target.value)} placeholder='remote_host:port'></input>
+                <input type="text" className="form-control form-control-sm" name="address" value={probeType ==  "caller" ? address: null} onChange={e => setAddress(e.target.value)} placeholder='remote_host:port' disabled={probeType === 'listener'}></input>
             </div>
 
             <div className='col-md-2'>
                 <label htmlFor="inputState" className="form-label">LocalPort</label>
-                <input type="text" className="form-control form-control-sm" name="port" value={port} onChange={e => setPort(e.target.value)} disabled={probeType === 'caller'}></input>
+                <input type="text" className="form-control form-control-sm" name="port" value={probeType ==  "listener" ? port : null} onChange={e => setPort(e.target.value)} disabled={probeType === 'caller'}></input>
             </div>
 
             <div className='col-md-3'>
@@ -55,7 +55,7 @@ function ProbeSrt({ config, probeType }) {
 
             <div className='col-md-3'>
                 <label htmlFor="type" className="form-label">Encryption</label>
-                <select className="form-select form-select-sm" name="encryption" value={encryption} onChange={e => setEncryption(e.target.value)}>
+                <select className="form-select form-select-sm" name="encryption" value={encryption} onChange={e => {setEncryption(e.target.value); if (e.target.value === "0") {setPassphrase('')}}}>
                     <option key="noenc" value="0">None</option>
                     <option key="aes128" value="16">AES-128</option>
                     <option key="aes192" value="24">AES-192</option>
@@ -65,7 +65,7 @@ function ProbeSrt({ config, probeType }) {
 
             <div className='col-md-3'>
                 <label htmlFor="inputState" className="form-label">Passphrase</label>
-                <input type="password" className="form-control form-control-sm" name="passphrase" value={passphrase} onChange={e => setPassphrase(e.target.value)}></input>
+                <input type="password" className="form-control form-control-sm" name="passphrase" value={passphrase} onChange={e => setPassphrase(e.target.value)} disabled={encryption === '0'}></input>
             </div>
         </>
     )

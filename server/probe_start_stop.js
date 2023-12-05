@@ -60,18 +60,20 @@ function srtCommand(config) {
             '--statistics-interval', '1000', '--json-line'
         ];
 
-        if (config.encryption !== 0) {
+        if (parseInt(config.encryption) !== 0) {
+
             params.push('--pbkeylen', config.encryption, '--passphrase', config.passphrase)
         }
         return (params);
     } else {
 
         let params = [
-            '-I', 'srt', "--" + config.type, config.address + ":" + config.port, '--transtype', 'live', '--messageapi',
+            '-I', 'srt', "--" + config.type, config.interface + ":" + config.port, '--transtype', 'live', '--messageapi',
             '--statistics-interval', '1000', '--json-line'
         ];
 
-        if (config.encryption !== 0) {
+        if (parseInt(config.encryption) !== 0) {
+            console.log("PIPPO")
             params.push('--pbkeylen', config.encryption, '--passphrase', config.passphrase)
         }
 
@@ -111,7 +113,7 @@ async function probeStart(config, tspcommand) {
 
         tspcommand = spawn('tsp', ['--control-port', probeCtrlPort, ...commandParam, ...generalCommand, '-P', 'filter', '-n', '-O', 'ip', '127.0.0.1:3333']);
 
-        // console.log(tspcommand.spawnargs.join(', ').replace(/,/g, ''))
+         console.log(tspcommand.spawnargs.join(', ').replace(/,/g, ''))
 
         const ster = readline.createInterface({
             input: tspcommand.stderr,
