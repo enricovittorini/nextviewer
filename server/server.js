@@ -31,6 +31,8 @@ let config = {
 
 
 const app = express();
+
+//Needed to simplify the deployment on K8s clsuter with Ingress: path rule msut be /nextviewer
 app.use(rewrite('/nextviewer/*', '/$1'));
 
 app.use(cors());
