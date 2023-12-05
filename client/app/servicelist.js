@@ -1,8 +1,8 @@
 'use client'
-import {useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import convertBitrate from './utils/convertBitrate';
 import getPesStreamId from './pesStreamId'
-import {getServiceType} from './serviceType';
+import { getServiceType } from './serviceType';
 import getPidType from './getPidType';
 
 
@@ -23,35 +23,9 @@ const Component = ({ data }) => {
                     //const description = k.description.substring(0, k.description.indexOf("(")).trim() || k["description"];
                     const bitrate = convertBitrate(k["bitrate"]);
                     const pid = k["id"];
-                    
+
                     //const pesStreamId = getPesStreamId(k["pes-stream-id"]);
                     let [icon, description, descriptionDetails] = getPidType(k);
-
-                   /* if (k.id === 8191) {
-                        icon = "bi bi-recycle";
-                
-                    } else if (k.audio) {
-                        icon = "bi bi-music-note-beamed";
-                
-                    } else if (k.video) {
-                        icon = "bi bi-film";
-                
-                    } else if (k.ecm) {
-                        icon = "bi bi-key";
-                
-                    } else if (k.emm) {
-                        icon = "bi bi-shield-lock";
-                
-                    } else if (k.unreferenced) {
-                        icon = "bi bi-question-square";
-                
-                    } else if (k.language) { //language can be found on audio or subtitles PID. If audio is false then it must be a subtitle
-                        icon = "bi bi-card-text";
-                
-                    } else {
-                        icon = "bi bi-app-indicator";
-                    }*/
-
 
                     // Add lock icon if the component is scrmabled
                     var scrambledIcon = null;
@@ -61,11 +35,7 @@ const Component = ({ data }) => {
 
                     return (
                         <li key={"component_" + k.id} className='prop'>
-                            {/* <details>
-                                <summary>*/}
                             <i className={icon}></i> <i className={scrambledIcon}></i> {pid} - {description} - {bitrate}
-                            {/*    </summary>
-                            </details>*/}
                         </li>
                     )
                 }
@@ -80,23 +50,34 @@ const Component = ({ data }) => {
 }
 
 
-function renderTable(data, analyze) {
+function renderTable(data, analyze, sdt) {
 
     //Do not list services that have packets at 0.
     if (!data || data.packets === 0) {
         return null;
     }
 
+    const serviceId = sdt['#nodes'].find(node => node['#name'] === 'service' && node.service_id === data["id"]);
+    const service = serviceId ? serviceId['#nodes'].find(node => node['#name'] === 'service_descriptor') : null;
+    const serviceName = service?.service_name;
+    const providerName =  service?.service_provider_name;
+    const serviceType = service?.service_type;
+
+ 
+
+
     const servicePids = data.pids;
     var icon = null;
     var scrambledIcon = null;
-    const name = data["name"];
+    //const name = data["name"];
+    const name = serviceName;
     const sId = data["id"];
     const pmtPid = data["pmt-pid"];
     const pcrPid = data["pcr-pid"];
-    //let typeName = data["type_name"];
-    const typeId = data["type"];
-    const provider = data["provider"];
+    //const typeId = data["type"];
+    const typeId = serviceType;
+    //const provider = data["provider"];
+    const provider = providerName
     const bitrate = convertBitrate(data["bitrate"]);
 
     const scrambled = data["is-scrambled"];
@@ -107,26 +88,8 @@ function renderTable(data, analyze) {
         scrambledIcon = null
     }
 
-    /*
-        switch (typeId) {
-            case 2:
-                icon = "bi bi-mic";
-                break;
-            case 1:
-            case 22:
-            case 25:
-                icon = "bi bi-tv";
-                break;
-    
-            default:
-                break;
-        }*/
 
     icon = getServiceType(typeId);
-
-
-
-
 
     return (
 
@@ -152,12 +115,18 @@ function renderTable(data, analyze) {
 function ServiceList({ data }) {
 
     var [analyze, setTable] = useState(data.analyze);
+    const [sdt, setSdt] = useState(data.sdt);
 
 
     useEffect(() => {
-        setTable(data.analyze); // Update nitTable when allTables changes
+        setTable(data.analyze);
 
     }, [data.analyze]);
+
+    useEffect(() => {
+        setSdt(data.sdt);
+
+    }, [data.sdt]);
 
     if (analyze && analyze.services) {
 
@@ -170,15 +139,11 @@ function ServiceList({ data }) {
                         <details>
                             <summary>Services ({numServices})</summary>
                             <ul>
-
                                 {
-
                                     analyze["services"].map((k, i) => {
-
-                                        return renderTable(k, analyze)
-
-                                    })}
-
+                                        return renderTable(k, analyze, sdt)
+                                    })
+                                }
                             </ul>
                         </details>
                     </li>
