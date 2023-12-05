@@ -45,7 +45,7 @@ export default function Home() {
   useEffect(() => {
     if (!listening) {
       const events = new EventSource('/nextviewer/events');
-      
+
       // onerror version
       events.onerror = (e) => {
         console.log("An error occurred while attempting to connect.");
@@ -104,6 +104,22 @@ export default function Home() {
 
   var clearServices = allTables?.analyze?.services?.filter(k => k["is-scrambled"] === false);
 
+  const serviceNames = allTables.sdt && allTables.sdt['#nodes']
+    .filter(node => node['#name'] === 'service')
+    .reduce((result, service) => {
+      const serviceId = service.service_id;
+      const serviceNameNode = service['#nodes'].find(node => node['#name'] === 'service_descriptor');
+      const serviceName = serviceNameNode ? serviceNameNode.service_name : null;
+
+      if (serviceId && serviceName) {
+        result[serviceId] = serviceName;
+      }
+
+      return result;
+    }, {});
+
+  
+
   return (
 
 
@@ -148,7 +164,7 @@ export default function Home() {
 
         <div className='col-md-12 col-lg-3'>
           <div className='row'>
-            <Preview services={clearServices} previewId={probeConfig.previewSid} image={previewImage} pids={allTables.pids} desc={previewPidDescription} />
+            <Preview serviceNames={serviceNames} services={clearServices} previewId={probeConfig.previewSid} image={previewImage} pids={allTables.pids} desc={previewPidDescription} />
           </div>
           <hr />
           <div className='row'>

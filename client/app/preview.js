@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image'
 
 
-function Preview({ services, previewId, image, desc }) {
+function Preview({ serviceNames, services, previewId, image, desc }) {
     const [serviceList, setServiceList] = useState(services);
     const [previewImage, setPreviewImage] = useState(image);
     const [sid, setSid] = useState(previewId);
@@ -84,7 +84,7 @@ function Preview({ services, previewId, image, desc }) {
                                 <option value="0"> No Preview</option>
                                 {serviceList !== undefined && serviceList.map(k => {
                                     return (
-                                        <option key={k.id} value={k.id} >{k.id} - {k.name}</option>
+                                        <option key={k.id} value={k.id} >{k.id} - {serviceNames[k.id]}</option>
                                     )
                                 })}
 
