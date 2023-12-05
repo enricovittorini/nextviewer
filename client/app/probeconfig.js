@@ -8,7 +8,7 @@ function ProbeIp({ config }) {
     const [port, setPort] = useState(config.port ? config.port : '');
 
     return (<>
-        <div className='col-md-2'>
+        <div className='col-md-3'>
             <label htmlFor="inputState" className="form-label">Address</label>
             <input type="text" className="form-control form-control-sm" name="address" value={address} onChange={e => setAddress(e.target.value)}></input>
         </div>
