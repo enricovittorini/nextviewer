@@ -5,7 +5,7 @@ Use it at your own risk :-)
 # How to use it
 The app is made of two components:
 - a backend based on Nodejs and use tsduck for TS Analysis
-- a front-end basedon React 
+- a front-end basedon Nextjs 
 
 The back-end server listen on port 8081.
 
