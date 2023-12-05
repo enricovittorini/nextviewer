@@ -9,6 +9,12 @@ The app is made of two components:
 
 The back-end server listen on port 8081.
 
+## Feature
+This tool accepts:
+- TSoIP 
+- SRT in caller mode
+- SRT in Listener mode
+
 ## Docker version
 A pre-package version is available as Docker image.
 

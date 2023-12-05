@@ -19,6 +19,7 @@ let previewcommand = null;
 //Probe configuration parameters
 let config = {
     "type": "ip",
+    "ssm": null,
     "address": null,
     "port": null,
     "interfaceList": ipv4Addresses || null,

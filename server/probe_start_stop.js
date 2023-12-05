@@ -45,7 +45,7 @@ function clearObject(obj) {
 function ipCommand(config) {
     let params = [
 
-        '-I', config.type, config.address + ":" + config.port, '-l', config.interface
+        '-I', config.type, config.ssm ? config.ssm+"@" + config.address + ":" + config.port :  config.address + ":" + config.port, '-l', config.interface
     ]
 
     return (params);

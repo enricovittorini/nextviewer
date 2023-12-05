@@ -5,12 +5,17 @@ import { useState, useEffect } from 'react';
 function ProbeIp({ config }) {
 
     const [address, setAddress] = useState(config.address ? config.address : '');
+    const [ssm, setSsm] = useState(config.ssm ? config.ssm : '');
     const [port, setPort] = useState(config.port ? config.port : '');
 
     return (
         <>
             <div className='col-md-3'>
-                <label htmlFor="inputState" className="form-label">Address</label>
+                <label htmlFor="inputState" className="form-label">SSM</label>
+                <input type="text" className="form-control form-control-sm" name="ssm" value={ssm} onChange={e => setSsm(e.target.value)}></input>
+            </div>
+            <div className='col-md-3'>
+                <label htmlFor="inputState" className="form-label">Multicast</label>
                 <input type="text" className="form-control form-control-sm" name="address" value={address} onChange={e => setAddress(e.target.value)}></input>
             </div>
             <div className='col-md-2'>
@@ -40,12 +45,12 @@ function ProbeSrt({ config, probeType }) {
         <>
             <div className='col-md-6'>
                 <label htmlFor="inputState" className="form-label">Remote Address</label>
-                <input type="text" className="form-control form-control-sm" name="address" value={probeType ==  "caller" ? address: null} onChange={e => setAddress(e.target.value)} placeholder='remote_host:port' disabled={probeType === 'listener'}></input>
+                <input type="text" className="form-control form-control-sm" name="address" value={probeType == "caller" ? address : null} onChange={e => setAddress(e.target.value)} placeholder='remote_host:port' disabled={probeType === 'listener'}></input>
             </div>
 
             <div className='col-md-2'>
                 <label htmlFor="inputState" className="form-label">LocalPort</label>
-                <input type="text" className="form-control form-control-sm" name="port" value={probeType ==  "listener" ? port : null} onChange={e => setPort(e.target.value)} disabled={probeType === 'caller'}></input>
+                <input type="text" className="form-control form-control-sm" name="port" value={probeType == "listener" ? port : null} onChange={e => setPort(e.target.value)} disabled={probeType === 'caller'}></input>
             </div>
 
             <div className='col-md-3'>
@@ -55,7 +60,7 @@ function ProbeSrt({ config, probeType }) {
 
             <div className='col-md-3'>
                 <label htmlFor="type" className="form-label">Encryption</label>
-                <select className="form-select form-select-sm" name="encryption" value={encryption} onChange={e => {setEncryption(e.target.value); if (e.target.value === "0") {setPassphrase('')}}}>
+                <select className="form-select form-select-sm" name="encryption" value={encryption} onChange={e => { setEncryption(e.target.value); if (e.target.value === "0") { setPassphrase('') } }}>
                     <option key="noenc" value="0">None</option>
                     <option key="aes128" value="16">AES-128</option>
                     <option key="aes192" value="24">AES-192</option>
