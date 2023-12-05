@@ -63,9 +63,6 @@ function renderTable(data, analyze, sdt) {
     const providerName =  service?.service_provider_name;
     const serviceType = service?.service_type;
 
- 
-
-
     const servicePids = data.pids;
     var icon = null;
     var scrambledIcon = null;
