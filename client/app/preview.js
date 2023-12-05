@@ -95,8 +95,8 @@ function Preview({ services, previewId, image, desc }) {
                 {/*   <img className="img-thumbnail float-end"  src={previewImage} alt="Preview Thumbnail" />*/}
                 <div className='col-12'>
                     <Image
-                        min-width={320}
-                        min-height={180}
+                        width={320}
+                        height={180}
                         className="img-thumbnail float-end"
                         src={previewImage}
                         alt="Preview Thumbnail" />
