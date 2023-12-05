@@ -1,3 +1,7 @@
+# nextViewer
+This is a very experimental tool to view the strucutre of a TS. Mabe by a newbie just for fun and learn.
+Use it at your own risk :-)
+
 # How to use it
 The app is made of two components:
 - a backend based on Nodejs and use tsduck for TS Analysis
