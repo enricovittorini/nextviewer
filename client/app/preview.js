@@ -54,7 +54,7 @@ function Preview({ /*serviceNames, */services, previewId, image, desc }) {
     useEffect(() => {
 
         const servicesObject = {};
-        if (services) {
+        if (services?.length > 0) {
             for (const s of services) {
                 servicesObject[s.service_id] = s.service_name;
             }
