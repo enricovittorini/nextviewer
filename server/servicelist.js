@@ -113,7 +113,7 @@ function getServicelist(sdt, analyze) {
            list.push(el);
 
         })
-        console.log(list)
+        
         return(list)
 
 
