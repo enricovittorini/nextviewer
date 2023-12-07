@@ -21,7 +21,8 @@ const Component = ({ data }) => {
                 if (!k.pmt && !k.ecm && !k.emm) {
 
                     //const description = k.description.substring(0, k.description.indexOf("(")).trim() || k["description"];
-                    const bitrate = convertBitrate(k["bitrate"]);
+                    //const bitrate = convertBitrate(k["bitrate"]);
+                    const bitrate = k["bitrate"];
                     const pid = k["id"];
 
                     //const pesStreamId = getPesStreamId(k["pes-stream-id"]);
@@ -75,7 +76,8 @@ function renderTable(data, analyze, sdt) {
     const typeId = serviceType;
     //const provider = data["provider"];
     const provider = providerName
-    const bitrate = convertBitrate(data["bitrate"]);
+    //const bitrate = convertBitrate(data["bitrate"]);
+    const bitrate = data["bitrate"];
 
     const scrambled = data["is-scrambled"];
 
