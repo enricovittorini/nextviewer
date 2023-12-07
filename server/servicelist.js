@@ -115,12 +115,13 @@ function getServicelist(sdt, analyze) {
 
     const list = [];
     const pids = analyze?.pids;
-    const services = analyze?.services;
+    const services = analyze?.services.filter(k => k.bitrate !== 0);
 
     // check that SDT tables has elements if not exit
 
-
     services && services.map(k => {
+
+             
         const el = {};
         
         el.components = [];

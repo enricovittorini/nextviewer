@@ -225,12 +225,11 @@ async function probeStart(config, tspcommand) {
 
 
                 if (j["#name"] === "SDT") {
-                    //console.log("tables: SDT")
+                    console.log("tables: SDT")
                     j["#nodes"][0]["bitrate"] = 0;
 
                     if (j.actual) {
-                        // sdt = j //push(j)
-                        allTables.sdt = j;
+                         allTables.sdt = j;
                     } else {
                         const onId = j.original_network_id
                         const tsId = j.transport_stream_id
@@ -245,7 +244,6 @@ async function probeStart(config, tspcommand) {
                         }
                         // TO DO: sure that push is correct?
 
-                        // sdtOther.sort((a, b) => a.transport_stream_id - b.transport_stream_id);
                     }
 
                 };
