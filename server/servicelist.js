@@ -29,19 +29,43 @@
 
 const convertBitrate = require('./convertBitrate')
 const getPidType = require('./getPidType');
-const {getServiceType, getServiceTypeHuman} = require('./getServiceType');
+const { getServiceType, getServiceTypeHuman } = require('./getServiceType');
 
-function getServiceProp(services, sid, el) {
-    const service = services.find(k => k.id === sid);
-    el.bitrate = convertBitrate(service?.bitrate);
-    el.service_pcr_pid = service["pcr-pid"] || null;
-    el.service_pmt_pid = service["pmt-pid"] | null;
-    el.scrabled = service["is-scrambled"];
+function getServiceProp(service, el) {
     
+    //const service = services.find(k => k.id === sid);
+    el.bitrate = service?.bitrate ? convertBitrate(service.bitrate) : convertBitrate(0);
+    el.service_pcr_pid = service["pcr-pid"] || null;
+    el.service_pmt_pid = service["pmt-pid"] || null;
+    el.scrabled = service["is-scrambled"];
+
 
     return service.pids;
 
 }
+
+function getServiceAnalyzeProp(service, el) {
+
+    // When there is not SDT, i need to get the info from the Analyze plugin
+    /* from the analyze.service get:
+    - service_id
+    - service icon
+    - service name
+    - provider
+    - service type
+    - service scrambled
+    */
+
+    el.service_id = service?.id;
+    el.service_name = service?.name;
+    el.service_provider = service?.provider;
+    el.service_type = service?.type;
+    el.service_icon = el.service_type && getServiceType(el.service_type);
+    el.service_description = el.service_type && getServiceTypeHuman(el.service_type);
+    el.scrambled_icon = service["is-scrambled"] ? "bi bi-key" : null;
+}
+
+
 
 function getServiceSDTprop(sdt, sid, el) {
     /* from the SDT get:
@@ -89,35 +113,44 @@ function getPidProperties(pids, x, elcomp) {
 
 function getServicelist(sdt, analyze) {
 
+    const list = [];
+    const pids = analyze?.pids;
+    const services = analyze?.services;
+
     // check that SDT tables has elements if not exit
-    if (Object.keys(sdt).length > 0) {
 
-        const list = [];
-        const pids = analyze?.pids;
-        const services = analyze?.services;
 
-        services.map(k => {
-            const el = {};
-            el.components = [];
+    services && services.map(k => {
+        const el = {};
+        
+        el.components = [];
+        if (Object.keys(sdt).length > 0) {
             getServiceSDTprop(sdt, k.id, el);
-            const servicePids = getServiceProp(services, k.id, el);
+            //const servicePids = getServiceProp(services, k.id, el);
+        } else{
 
-            //Now get the info on the components:
-            servicePids.forEach(x => {
+            getServiceAnalyzeProp(k, el)
+            //const servicePids = getServiceProp(services, k.id, el);
+        }
 
-                getPidProperties(pids, x, el.components);
+        //Now get the info on the components:
+        const servicePids = getServiceProp(k, el);
+        servicePids.forEach(x => {
 
-            })
-
-           // console.log(el)
-           list.push(el);
+            getPidProperties(pids, x, el.components);
 
         })
-        
-        return(list)
+
+        console.log(el)
+
+        list.push(el);
+
+    })
+    
+    return (list)
 
 
-    }
+
 
 }
 
