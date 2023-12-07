@@ -160,9 +160,7 @@ async function probeStart(config, tspcommand) {
                     reparseTable = false;
                 }
 
-                //bitrate monitor is the most frequent pluging. Send allTables  only
-                //console.log("Sending allTables");
-
+                //bitrate monitor is the most frequent plugin. Send allTables  only here
                 allTables.servicelist = getServicelist(allTables.sdt, allTables.analyze);
                 sendEventsToAll('allTables', allTables);
 
@@ -241,7 +239,6 @@ async function probeStart(config, tspcommand) {
                             //sdtOther[idx] = j;
                             allTables.sdtOther[idx] = j;
                         } else {
-
                             allTables.sdtOther.push(j)
                             allTables.sdtOther.sort((a, b) => a.transport_stream_id - b.transport_stream_id);
 
