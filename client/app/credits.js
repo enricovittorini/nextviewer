@@ -18,7 +18,7 @@ function Credits() {
                   <a href="https://tsduck.io/" className="nav-link px-2">tsduck.io</a>
                 </li>
                 <li>
-                  <a href="https://github.com/enricovittorini/tsduck/blob/master/LICENSE.txt" className="nav-link px-2">TSduck License</a>
+                  <a href="https://github.com/tsduck/tsduck/blob/master/LICENSE.txt" className="nav-link px-2">TSduck License</a>
                 </li>
               </ul>
             </div>
