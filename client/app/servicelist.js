@@ -144,7 +144,6 @@ function ServiceList({ data }) {
                             </ul>
                         </details>
                     </li>
-
                 </ul>
             </>
 

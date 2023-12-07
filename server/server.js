@@ -73,7 +73,7 @@ function eventsHandler(request, response, next) {
     sendEventsToOne(newClient, "config", config);
     sendEventsToOne(newClient, "allTables", getAllTables());
     sendEventsToOne(newClient, 'previewImage', nopreview);
-    sendEventsToOne(newClient, 'description', config.description);
+    sendEventsToOne(newClient, 'description', config.description ? config.description : null );
 
     request.on('close', () => {
         console.log(`${clientId} Connection closed`);

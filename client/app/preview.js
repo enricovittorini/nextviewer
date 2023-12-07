@@ -3,11 +3,13 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image'
 
 
-function Preview({ serviceNames, services, previewId, image, desc }) {
-    const [serviceList, setServiceList] = useState(services);
+function Preview({ /*serviceNames, */services, previewId, image, desc }) {
+    const [serviceList, setServiceList] = useState({});
     const [previewImage, setPreviewImage] = useState(image);
     const [sid, setSid] = useState(previewId);
-    const [descripton, setDescription] = useState(desc);
+    const [description, setDescription] = useState('');
+
+
 
 
     const handleServiceChange = async (event) => {
@@ -15,12 +17,8 @@ function Preview({ serviceNames, services, previewId, image, desc }) {
         //get the Service Id of the desired preview
         const selectedId = event.target.value;
 
-
         // IF the selection is 0, set start_stop_preview to "stoppreview"
         let start_stop_preview = selectedId === "0" ? "stoppreview" : "startpreview";
-
-
-        //console.log("I have selected sid: " + selectedId)
 
         setSid(selectedId);
 
@@ -54,8 +52,14 @@ function Preview({ serviceNames, services, previewId, image, desc }) {
 
 
     useEffect(() => {
-        //setPreviewImage(image);
-        setServiceList(services);
+
+        const servicesObject = {};
+        if (services) {
+            for (const s of services) {
+                servicesObject[s.service_id] = s.service_name;
+            }
+            setServiceList(servicesObject);
+        }
 
         //Neet to change teh 
         previewId === null ? setSid(0) : setSid(previewId);
@@ -70,7 +74,8 @@ function Preview({ serviceNames, services, previewId, image, desc }) {
 
 
     useEffect(() => {
-        setDescription(desc);
+        setDescription(desc.replace(/"/g, ''));
+      
     }, [desc])
 
 
@@ -82,9 +87,9 @@ function Preview({ serviceNames, services, previewId, image, desc }) {
                         <div className="mb-3">
                             <select className="form-select form-select-sm" value={sid} onChange={handleServiceChange}>
                                 <option value="0"> No Preview</option>
-                                {serviceList !== undefined && serviceList.map(k => {
+                                {Object.keys(serviceList).length > 0 && Object.keys(serviceList).map(k => {
                                     return (
-                                        <option key={k.id} value={k.id} >{k.id} - {serviceNames[k.id]}</option>
+                                        <option key={k} value={k} >{k} - {serviceList[k]}</option>
                                     )
                                 })}
 
@@ -105,7 +110,7 @@ function Preview({ serviceNames, services, previewId, image, desc }) {
 
             <div className='row'>
                 <div className='col-12'>
-                    <p>{descripton}</p>
+                    <p>{description}</p>
                 </div>
             </div>
 

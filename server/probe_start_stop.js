@@ -3,9 +3,10 @@ const readline = require('readline');
 const { sendEventsToAll } = require('./sendEvents');
 const TablePid = require('./constants');
 const srtVesion = require('./getSrtVersion');
+const getServicelist = require('./servicelist');
 
 const probeCtrlPort = 3001; // Probe process control port
-let allTables = { "pat": {}, "cat": {}, "pmt": [], "sdt": {}, "sdtOther": [], "bat": {}, "nit": {}, "analyze": {}, "bitrate": {}, "srt": {}, "stats": {}, "info": {} };
+let allTables = { "pat": {}, "cat": {}, "pmt": [], "sdt": {}, "sdtOther": [], "bat": {}, "nit": {}, "analyze": {}, "servicelist": {}, "bitrate": {}, "srt": {}, "stats": {}, "info": {} };
 let oldLateTables = []; // keep track of old tables
 const lateTablesPid = [16, 17, 18, 20, 21]; //There are tables with potentially high repetitionrate. Use "analyze" with high interval
 
@@ -73,7 +74,7 @@ function srtCommand(config) {
         ];
 
         if (parseInt(config.encryption) !== 0) {
-            console.log("PIPPO")
+         
             params.push('--pbkeylen', config.encryption, '--passphrase', config.passphrase)
         }
 
@@ -161,7 +162,11 @@ async function probeStart(config, tspcommand) {
 
                 //bitrate monitor is the most frequent pluging. Send allTables  only
                 //console.log("Sending allTables");
+
+                allTables.servicelist = getServicelist(allTables.sdt, allTables.analyze);
                 sendEventsToAll('allTables', allTables);
+
+                //sendEventsToAll('servicelist', getServicelist(allTables.sdt, allTables.analyze));
 
             }
 
@@ -171,7 +176,7 @@ async function probeStart(config, tspcommand) {
 
                 if (j["#name"] === "PAT") {
 
-                    console.log("tables: PAT");
+                    //console.log("tables: PAT");
 
                     j["#nodes"][0]["bitrate"] = 0;
 

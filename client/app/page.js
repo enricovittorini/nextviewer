@@ -17,6 +17,7 @@ import SrtStats from './srtstats';
 import Footer from './footer';
 import Credits from './credits';
 import ServiceList from './servicelist';
+import NewServiceList from './newservicelist';
 import CcBadge from './badge';
 import SrtStatsListener from './srtstatsListener';
 import Preview from './preview';
@@ -34,6 +35,7 @@ export default function Home() {
   const [connectionStatus, setConnectionStatus] = useState('primary');
   const [previewImage, setPreviewImage] = useState(nopreview);
   const [previewPidDescription, setPreviewPidDescription] = useState('');
+  const [serviceList, setServiceList] = useState({});
 
 
 
@@ -50,6 +52,7 @@ export default function Home() {
       events.onerror = (e) => {
         console.log("An error occurred while attempting to connect.");
         setConnectionStatus('danger');
+
       };
 
       // onopen version
@@ -62,6 +65,11 @@ export default function Home() {
       events.addEventListener('allTables', (event) => {
         const parsedData = JSON.parse(event.data);
         setAllTables(parsedData)
+      })
+
+      events.addEventListener('servicelist', (event) => {
+        const parsedData = JSON.parse(event.data);
+        console.log(parsedData)
       })
 
 
@@ -102,13 +110,13 @@ export default function Home() {
 
   }
 
-  var clearServices = allTables?.analyze?.services?.filter(k => k["is-scrambled"] === false);
+  /*var clearServices = allTables?.analyze?.services?.filter(k => k["is-scrambled"] === false) || null;
 
-  const serviceNames = allTables.sdt && allTables.sdt['#nodes']
-    .filter(node => node['#name'] === 'service')
+  const serviceNames = (allTables.sdt && allTables.sdt["#nodes"]) && allTables.sdt["#nodes"]
+    .filter(node => node["#name"] === "service")
     .reduce((result, service) => {
       const serviceId = service.service_id;
-      const serviceNameNode = service['#nodes'].find(node => node['#name'] === 'service_descriptor');
+      const serviceNameNode = service["#nodes"].find(node => node["#name"] === "service_descriptor");
       const serviceName = serviceNameNode ? serviceNameNode.service_name : null;
 
       if (serviceId && serviceName) {
@@ -116,9 +124,9 @@ export default function Home() {
       }
 
       return result;
-    }, {});
+    }, {});*/
 
-  
+
 
   return (
 
@@ -142,7 +150,7 @@ export default function Home() {
           <div className='row'>
             <h6>PSI-SI</h6>
             <Pat data={allTables} />
-            <Cat data={allTables} />
+             <Cat data={allTables} />
             <Pmt data={allTables} />
             <Nit data={allTables} />
             <Sdt data={allTables} />
@@ -150,10 +158,11 @@ export default function Home() {
             <Bat data={allTables} />
           </div>
         </div>
-        <div className='col-md-6 col-lg-5'>
+         <div className='col-md-6 col-lg-5'>
           <div className='row'>
             <h6>Service List</h6>
-            <ServiceList data={allTables} />
+             {/*<ServiceList data={allTables} /> */}
+             <NewServiceList list={allTables.servicelist}/>
           </div>
           <hr />
           <div className='row'>
@@ -161,10 +170,12 @@ export default function Home() {
             <PidsList data={allTables} />
           </div>
         </div>
+        
 
         <div className='col-md-12 col-lg-3'>
           <div className='row'>
-            <Preview serviceNames={serviceNames} services={clearServices} previewId={probeConfig.previewSid} image={previewImage} pids={allTables.pids} desc={previewPidDescription} />
+          {/*  <Preview serviceNames={serviceNames} services={clearServices} previewId={probeConfig.previewSid} image={previewImage} pids={allTables.pids} desc={previewPidDescription} />*/}
+          <Preview services={allTables.servicelist} previewId={probeConfig.previewSid} image={previewImage} pids={allTables.pids} desc={previewPidDescription} />
           </div>
           <hr />
           <div className='row'>
@@ -176,6 +187,7 @@ export default function Home() {
         <Footer />
         <Credits />
       </div>
+
     </>
 
   )

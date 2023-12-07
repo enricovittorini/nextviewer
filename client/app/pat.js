@@ -56,7 +56,7 @@ function Pat({ data }) {
 
 
     useEffect(() => {
-        setTable(data.pat); // Update nitTable when allTables changes
+        setTable(data.pat); 
     }, [data.pat]);
 
 

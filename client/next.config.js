@@ -2,6 +2,21 @@
 const nextConfig = {
   basePath: '/nextviewer',
   output: 'export',
+  
+    // async rewrites() {
+ 
+    //   return [
+    //     {
+    //       source: '/nextviewer/:path*',
+    //       destination: 'http://localhost:8081/:path*/',
+    //     },
+    //     {
+    //       source: '/:path*',
+    //       destination: 'http://localhost:8081/nextviewer/:path*/',
+    //     },
+    //   ]
+    
+    // },
 
 }
 
