@@ -1,7 +1,7 @@
 
 'use client'
 import { useState, useEffect } from 'react';
-import convertBitrate from './utils/convertBitrate';
+//import convertBitrate from './utils/convertBitrate';
 import { getServiceTypeHuman } from './serviceType';
 
 
@@ -132,8 +132,9 @@ function Nit({ data }) {
 
 
     if (nitTable && Object.keys(nitTable).length > 0) {
-        // let bitrate = Intl.NumberFormat('en-US', { style: 'unit', unit: "kilobit-per-second", maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(nitTable["#nodes"][0]["bitrate"])
-        const bitrate = convertBitrate(nitTable["#nodes"][0]["bitrate"])
+        
+        //const bitrate = convertBitrate(nitTable["#nodes"][0]["bitrate"])
+        const bitrate = nitTable["#nodes"][0]["bitrate"];
         return (
 
             <ul className="tree">

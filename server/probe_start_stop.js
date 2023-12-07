@@ -4,6 +4,7 @@ const { sendEventsToAll } = require('./sendEvents');
 const TablePid = require('./constants');
 const srtVesion = require('./getSrtVersion');
 const getServicelist = require('./servicelist');
+const convertBitrate = require('./convertBitrate');
 
 const probeCtrlPort = 3001; // Probe process control port
 let allTables = { "pat": {}, "cat": {}, "pmt": [], "sdt": {}, "sdtOther": [], "bat": {}, "nit": {}, "analyze": {}, "servicelist": {}, "bitrate": {}, "srt": {}, "stats": {}, "info": {} };
@@ -309,7 +310,7 @@ async function probeStart(config, tspcommand) {
                     const j = JSON.parse(data.substring(10));
 
                     //If allTables.analyze does not exist, set it equal to j.
-                    allTables.analyze = allTables.analyze || j;
+                    allTables.analyze = allTables.analyze && j;
 
 
                     const newLatePidSet = new Set(j.pids.map(pid => pid.id));
@@ -364,7 +365,7 @@ async function probeStart(config, tspcommand) {
 
                         const pid = allTables?.analyze?.pids?.length > 0 && allTables.analyze.pids.find(k => k["id"] === id);
                         // console.log("PID: " + pid)
-                        const tableBitrate = pid?.bitrate;
+                        const tableBitrate = pid?.bitrate && convertBitrate(pid.bitrate);
                         // console.log("PAT bitrate: " + tableBitrate)
 
                         if (target["#nodes"] && target["#nodes"][0]) {
@@ -406,6 +407,10 @@ async function probeStart(config, tspcommand) {
                         setBitrateTables(allTables.bat, TablePid.SDT_BAT); // BAT is the same pid as SDT
                     }
 
+                    //Format the bitrate for the PIDS:
+                    allTables.analyze.pids.forEach(k=> {
+                        k.bitrate = convertBitrate(k.bitrate);
+                    })
                     allTables.analyze.pids = j.pids;
                     // sendEventsToAll(allTables);
                     allTables.analyze.services = j.services;
