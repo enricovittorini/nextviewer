@@ -50,8 +50,8 @@ function NewServiceList({ list }) {
                                 <li key={"sid_" + k.service_id}>
                                     <details>
                                         <summary>
-                                            <i className={k.service_icon}></i>
-                                            <i className={k.scrambled_icon}></i> {k.service_id} {k.service_name} - {k.bitrate}
+                                            <i className={k.service_icon}></i> 
+                                            <i className={`${k.scrambled_icon} ms-1`}></i> {k.service_id} {k.service_name} - {k.bitrate}
                                         </summary>
 
                                         <ul>

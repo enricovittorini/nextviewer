@@ -83,7 +83,7 @@ function getServiceSDTprop(sdt, sid, el) {
     el.service_type = service?.service_type;
     el.service_icon = service?.service_type && getServiceType(service.service_type);
     el.service_description = service?.service_type && getServiceTypeHuman(service.service_type);
-    el.scrambled_icon = service["ca_mode"] ? "bi bi-key" : null;
+    
 }
 
 function getPidProperties(pids, x, elcomp) {
@@ -115,17 +115,19 @@ function getServicelist(sdt, analyze) {
 
     const list = [];
     const pids = analyze?.pids;
-    const services = analyze?.services;
+    const services = analyze?.services.filter(k => k.bitrate !== 0);
 
     // check that SDT tables has elements if not exit
 
-
     services && services.map(k => {
+
+             
         const el = {};
         
         el.components = [];
         if (Object.keys(sdt).length > 0) {
             getServiceSDTprop(sdt, k.id, el);
+            
             //const servicePids = getServiceProp(services, k.id, el);
         } else{
 
@@ -133,15 +135,17 @@ function getServicelist(sdt, analyze) {
             //const servicePids = getServiceProp(services, k.id, el);
         }
 
+        //
+        el.scrambled_icon = k["is-scrambled"] ? "bi bi-key" : null;
         //Now get the info on the components:
         const servicePids = getServiceProp(k, el);
-        servicePids.forEach(x => {
+        servicePids && servicePids.forEach(x => {
 
             getPidProperties(pids, x, el.components);
 
         })
 
-        console.log(el)
+       
 
         list.push(el);
 

@@ -1,7 +1,7 @@
 
 'use client'
 import { useState, useEffect } from 'react';
-import convertBitrate from './utils/convertBitrate';
+//import convertBitrate from './utils/convertBitrate';
 
 
 function Properties({ data }) {
@@ -82,8 +82,9 @@ function Sdt({data}) {
 
    
     if (sdtTable && Object.keys(sdtTable).length > 0) {
-        //let bitrate = Intl.NumberFormat('en-US', { style: 'unit', unit: "kilobit-per-second", maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(sdtTable["#nodes"][0]["bitrate"])
-        const bitrate = convertBitrate(sdtTable["#nodes"][0]["bitrate"])
+        
+        //const bitrate = convertBitrate(sdtTable["#nodes"][0]["bitrate"])
+        const bitrate = sdtTable["#nodes"][0]["bitrate"];
         return (
 
             <ul className="tree">

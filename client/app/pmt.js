@@ -144,7 +144,8 @@ function renderTable(data, service) {
     //PMT bitrate
     var pmtbitrate = data["#nodes"][0].bitrate !== undefined ? data["#nodes"][0].bitrate : 0;
     //let bitrate = Intl.NumberFormat('en-US', { style: 'unit', unit: "kilobit-per-second", maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(pmtbitrate)
-    const bitrate = convertBitrate(pmtbitrate);
+    //const bitrate = convertBitrate(pmtbitrate);
+    const bitrate = pmtbitrate;
 
     return (
 

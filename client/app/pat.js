@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import convertBitrate from './utils/convertBitrate';
+//import convertBitrate from './utils/convertBitrate';
 
 
 function Properties({ data }) {
@@ -65,7 +65,8 @@ function Pat({ data }) {
 
     if (patTable && Object.keys(patTable).length > 0) {
         //let bitrate = Intl.NumberFormat('en-US', { style: 'unit', unit: "kilobit-per-second", maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(patTable["#nodes"][0]["bitrate"])
-        const bitrate = convertBitrate(patTable["#nodes"][0]["bitrate"])
+        //const bitrate = convertBitrate(patTable["#nodes"][0]["bitrate"])
+        const bitrate = patTable["#nodes"][0]["bitrate"];
         return (
             !!patTable["#name"] ?
 

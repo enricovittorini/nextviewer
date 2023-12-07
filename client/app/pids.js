@@ -1,7 +1,7 @@
 
 'use client'
 import { useState, useEffect } from 'react';
-import convertBitrate from './utils/convertBitrate';
+//import convertBitrate from './utils/convertBitrate';
 import getPidType from './getPidType';
 
 
@@ -14,7 +14,8 @@ function renderTable(data) {
     }
 
     let scrambledIcon = null;
-    let bitrate = convertBitrate(data.bitrate);
+    //let bitrate = convertBitrate(data.bitrate);
+    let bitrate = data.bitrate;
 
     if (data["is-scrambled"]) {
         scrambledIcon = "bi bi-lock";

@@ -4,6 +4,7 @@ const { sendEventsToAll } = require('./sendEvents');
 const TablePid = require('./constants');
 const srtVesion = require('./getSrtVersion');
 const getServicelist = require('./servicelist');
+const convertBitrate = require('./convertBitrate');
 
 const probeCtrlPort = 3001; // Probe process control port
 let allTables = { "pat": {}, "cat": {}, "pmt": [], "sdt": {}, "sdtOther": [], "bat": {}, "nit": {}, "analyze": {}, "servicelist": {}, "bitrate": {}, "srt": {}, "stats": {}, "info": {} };
@@ -160,9 +161,7 @@ async function probeStart(config, tspcommand) {
                     reparseTable = false;
                 }
 
-                //bitrate monitor is the most frequent pluging. Send allTables  only
-                //console.log("Sending allTables");
-
+                //bitrate monitor is the most frequent plugin. Send allTables  only here
                 allTables.servicelist = getServicelist(allTables.sdt, allTables.analyze);
                 sendEventsToAll('allTables', allTables);
 
@@ -227,12 +226,11 @@ async function probeStart(config, tspcommand) {
 
 
                 if (j["#name"] === "SDT") {
-                    //console.log("tables: SDT")
+                    console.log("tables: SDT")
                     j["#nodes"][0]["bitrate"] = 0;
 
                     if (j.actual) {
-                        // sdt = j //push(j)
-                        allTables.sdt = j;
+                         allTables.sdt = j;
                     } else {
                         const onId = j.original_network_id
                         const tsId = j.transport_stream_id
@@ -241,14 +239,12 @@ async function probeStart(config, tspcommand) {
                             //sdtOther[idx] = j;
                             allTables.sdtOther[idx] = j;
                         } else {
-
                             allTables.sdtOther.push(j)
                             allTables.sdtOther.sort((a, b) => a.transport_stream_id - b.transport_stream_id);
 
                         }
                         // TO DO: sure that push is correct?
 
-                        // sdtOther.sort((a, b) => a.transport_stream_id - b.transport_stream_id);
                     }
 
                 };
@@ -314,7 +310,7 @@ async function probeStart(config, tspcommand) {
                     const j = JSON.parse(data.substring(10));
 
                     //If allTables.analyze does not exist, set it equal to j.
-                    allTables.analyze = allTables.analyze || j;
+                    allTables.analyze = allTables.analyze && j;
 
 
                     const newLatePidSet = new Set(j.pids.map(pid => pid.id));
@@ -369,7 +365,7 @@ async function probeStart(config, tspcommand) {
 
                         const pid = allTables?.analyze?.pids?.length > 0 && allTables.analyze.pids.find(k => k["id"] === id);
                         // console.log("PID: " + pid)
-                        const tableBitrate = pid?.bitrate;
+                        const tableBitrate = pid?.bitrate && convertBitrate(pid.bitrate);
                         // console.log("PAT bitrate: " + tableBitrate)
 
                         if (target["#nodes"] && target["#nodes"][0]) {
@@ -411,6 +407,10 @@ async function probeStart(config, tspcommand) {
                         setBitrateTables(allTables.bat, TablePid.SDT_BAT); // BAT is the same pid as SDT
                     }
 
+                    //Format the bitrate for the PIDS:
+                    allTables.analyze.pids.forEach(k=> {
+                        k.bitrate = convertBitrate(k.bitrate);
+                    })
                     allTables.analyze.pids = j.pids;
                     // sendEventsToAll(allTables);
                     allTables.analyze.services = j.services;
