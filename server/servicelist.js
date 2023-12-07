@@ -95,9 +95,11 @@ function getPidProperties(pids, x, elcomp) {
     // Do not include PMT, ECM and  EMM in the component list
     if (!pid.pmt && !pid.ecm && !pid.emm) {
         let [icon, scrambledIcon, description, descriptionDetails] = getPidType(pid);
+       
         component.id = x;
         component.is_scrambled = pid["is-scrambled"];
         component.bitrate = pid["bitrate"]; // it is already converted when it arrives here
+        component.video = pid["video"];
         component.icon = icon;
         component.icon_scrambled = scrambledIcon;
         component.description = description;

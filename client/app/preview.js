@@ -9,9 +9,6 @@ function Preview({ /*serviceNames, */services, previewId, image, desc }) {
     const [sid, setSid] = useState(previewId);
     const [description, setDescription] = useState('');
 
-
-
-
     const handleServiceChange = async (event) => {
 
         //get the Service Id of the desired preview
@@ -48,15 +45,19 @@ function Preview({ /*serviceNames, */services, previewId, image, desc }) {
 
     }
 
-
-
-
     useEffect(() => {
 
         const servicesObject = {};
         if (services?.length > 0) {
             for (const s of services) {
-                servicesObject[s.service_id] = s.service_name;
+                console.log(s)
+                // Exclude the service from the preview list if the video is scrambled
+                let videoComponent = s.components.some(k => { return (k.video === true && k.is_scrambled === false) })
+                console.log(videoComponent)
+
+                if (videoComponent) {
+                    servicesObject[s.service_id] = s.service_name
+                }
             }
             setServiceList(servicesObject);
         }
@@ -75,7 +76,7 @@ function Preview({ /*serviceNames, */services, previewId, image, desc }) {
 
     useEffect(() => {
         setDescription(desc.replace(/"/g, ''));
-      
+
     }, [desc])
 
 
