@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 const handleCCreset = async () => {
     try {
         // Perform your POST API request here
-        const response = await fetch('/resetcc', {
+        const response = await fetch('/nextviewer/resetcc', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
