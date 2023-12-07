@@ -67,7 +67,7 @@ function eventsHandler(request, response, next) {
 
     //clients.push(newClient);
     addClient(newClient);
-
+    config.interfaceList = getInterfacesList() || null;
     //sendEventsToAll("config", config);
     //sendEventsToAll("allTables", getAllTables());
     sendEventsToOne(newClient, "config", config);
@@ -86,7 +86,6 @@ app.get('/events', eventsHandler);
 
 
 //---------- END SSE EVENTS ---------- //
-
 
 app.route('/config')
     // GET Probe Config Parameters
@@ -144,6 +143,7 @@ app.post('/stop', async function (req, res) {
     } catch (e) {
         tspcommand = null;
         previewcommand = null;
+        config.status = "stopped";
         console.log(e)
     }
 
@@ -269,6 +269,7 @@ app.post('/resetcc', async function (req, res) {
 // Tutte le altre richieste di tipo GET non gestite dal metodo precedente, restituiranno l'applicazione REACT
 app.get('*', (req, res) => {
     //res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+
     res.sendFile(path.resolve(__dirname, '../client/out', 'index.html'));
 })
 

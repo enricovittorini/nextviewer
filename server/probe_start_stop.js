@@ -226,7 +226,7 @@ async function probeStart(config, tspcommand) {
 
 
                 if (j["#name"] === "SDT") {
-                    console.log("tables: SDT")
+                    //console.log("tables: SDT")
                     j["#nodes"][0]["bitrate"] = 0;
 
                     if (j.actual) {
