@@ -182,6 +182,7 @@ app.post('/startpreview', async function (req, res) {
 
                     if (previewcommand) {
                         config.previewSid = sid.sid;
+                    
                         sendEventsToAll('config', config);
                         sendEventsToAll('description', config.description)
                         res.json(config);
@@ -237,6 +238,7 @@ app.post('/stoppreview', async function (req, res) {
         previewcommand.on('close', async (code, signal) => {
             console.log(`Preview process terminated due to receipt of signal ${signal}`);
             config.previewSid = 0;
+            config.description = "";
             sendEventsToAll('config', config);
             sendEventsToAll('previewImage', nopreview);
             sendEventsToAll('description', " ");
