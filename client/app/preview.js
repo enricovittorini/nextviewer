@@ -50,7 +50,7 @@ function Preview({ /*serviceNames, */services, previewId, image, desc }) {
         const servicesObject = {};
         if (services?.length > 0) {
             for (const s of services) {
-                console.log(s)
+             
                 // Exclude the service from the preview list if the video is scrambled
                 let videoComponent = s.components.some(k => { return (k.video === true && k.is_scrambled === false) })
 
