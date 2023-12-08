@@ -7,7 +7,7 @@ function Footer() {
                 <a href="https://github.com/enricovittorini/nextviewer" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
                     <i className="bi bi-github" width="30" height="24"></i>
                 </a>
-                <span className="mb-3 mb-md-0">© 2023 Enrico Vittorini</span>
+                <span className="mb-3 mb-md-0">© Enrico Vittorini</span>
             </div>
             <div className="col-sm-1 text-white-50"> version 1.18</div>
            
