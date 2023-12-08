@@ -323,15 +323,18 @@ async function probeStart(config, tspcommand) {
 
                         //Retrieve the bitrate value form the analyze.pid and convert it
                         const pid = allTables?.analyze?.pids?.length > 0 && allTables.analyze.pids.find(k => k["id"] === id);
-                        
+                        let tableBitrate  = 0;
                         if (typeof pid?.bitrate === 'number') {
                             
-                            const tableBitrate = pid?.bitrate && convertBitrate(pid.bitrate);
+                             tableBitrate = pid?.bitrate && convertBitrate(pid.bitrate);
+                        } else {
+                            tableBitrate = pid?.bitrate && pid.bitrate;
+                        }
 
                             if (target["#nodes"] && target["#nodes"][0]) {
                                 target["#nodes"][0]["bitrate"] = tableBitrate;
                             }
-                        }
+                       
 
                     }
 
