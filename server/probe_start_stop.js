@@ -10,13 +10,15 @@ const probeCtrlPort = 3001; // Probe process control port
 let allTables = { "pat": {}, "cat": {}, "pmt": [], "sdt": {}, "sdtOther": [], "bat": {}, "nit": {}, "analyze": {}, "servicelist": {}, "bitrate": {}, "srt": {}, "stats": {}, "info": {} };
 let oldLateTables = []; // keep track of old tables
 const lateTablesPid = [16, 17, 18, 20, 21]; //There are tables with potentially high repetitionrate. Use "analyze" with high interval
+tableRepRate = {"16": 0, "17": 0, "18":0, "21":0};
 
 const generalCommand = [
     '-P', 'bitrate_monitor', '-p', '2', '-t', '3',
     '-P', 'tables', '--log-json-line', '--psi-si', '--pid', '18', '--pid', '20', '--invalid-versions', '--default-pds', '0x00000028',
     '-P', 'analyze', '--unreferenced-pid-list', '-i', '2', '--json-line',
     '-P', 'analyze', '--unreferenced-pid-list', '-i', '11', '--json-line=SLOWTAB',
-    '-P', 'continuity'
+    '-P', 'continuity',
+    //'-P', 'analyze', '--unreferenced-pid-list', '-c','-i', '5', '--json-line=ANACONT',
 ];
 
 
