@@ -47,7 +47,7 @@ function clearObject(obj) {
 function ipCommand(config) {
     let params = [
 
-        '-I', config.type, config.ssm ? config.ssm+"@" + config.address + ":" + config.port :  config.address + ":" + config.port, '-l', config.interface
+        '-I', config.type, config.ssm ? config.ssm + "@" + config.address + ":" + config.port : config.address + ":" + config.port, '-l', config.interface
     ]
 
     return (params);
@@ -75,7 +75,7 @@ function srtCommand(config) {
         ];
 
         if (parseInt(config.encryption) !== 0) {
-         
+
             params.push('--pbkeylen', config.encryption, '--passphrase', config.passphrase)
         }
 
@@ -115,7 +115,7 @@ async function probeStart(config, tspcommand) {
 
         tspcommand = spawn('tsp', ['--control-port', probeCtrlPort, ...commandParam, ...generalCommand, '-P', 'filter', '-n', '-O', 'ip', '127.0.0.1:3333']);
 
-         console.log(tspcommand.spawnargs.join(', ').replace(/,/g, ''))
+        console.log(tspcommand.spawnargs.join(', ').replace(/,/g, ''))
 
         const ster = readline.createInterface({
             input: tspcommand.stderr,
@@ -232,7 +232,7 @@ async function probeStart(config, tspcommand) {
                     j["#nodes"][0]["bitrate"] = 0;
 
                     if (j.actual) {
-                         allTables.sdt = j;
+                        allTables.sdt = j;
                     } else {
                         const onId = j.original_network_id
                         const tsId = j.transport_stream_id
@@ -293,12 +293,16 @@ async function probeStart(config, tspcommand) {
 
                         const j = JSON.parse(data.substring(18));
 
-                        // Store in oldLateTables the PID info of the slow tables 
+                        // oldLateTables contains the PIDs of the "slow tables" 
                         //Use Set for faster lookups
                         //Use the filter method to create an array (oldLateTables) containing the elements from j.pids whose id is present in the lateTablesPid
+
                         const lateTablesPidSet = new Set(lateTablesPid);
                         oldLateTables = j.pids.filter(pid => lateTablesPidSet.has(pid.id));
-                        //console.log("Update old tables")
+                        oldLateTables.forEach(k => {
+                            k.bitrate = convertBitrate(k.bitrate);
+                        })
+
 
                     } else if (prefix === "ANACONT") {
 
@@ -312,9 +316,28 @@ async function probeStart(config, tspcommand) {
                     const j = JSON.parse(data.substring(10));
 
                     //If allTables.analyze does not exist, set it equal to j.
-                    allTables.analyze = allTables.analyze && j;
+                    allTables.analyze = j//allTables.analyze && j;
 
 
+                    function setBitrateTables(target, id) {
+
+                        //Retrieve the bitrate value form the analyze.pid and convert it
+                        const pid = allTables?.analyze?.pids?.length > 0 && allTables.analyze.pids.find(k => k["id"] === id);
+                        
+                        if (typeof pid?.bitrate === 'number') {
+                            
+                            const tableBitrate = pid?.bitrate && convertBitrate(pid.bitrate);
+
+                            if (target["#nodes"] && target["#nodes"][0]) {
+                                target["#nodes"][0]["bitrate"] = tableBitrate;
+                            }
+                        }
+
+                    }
+
+
+
+                    //Here i take the j.pids just received and swap the pid of the slow tables with what i have in the slowtables pids array.
                     const newLatePidSet = new Set(j.pids.map(pid => pid.id));
                     const oldLateTableSet = new Set(oldLateTables.map(pid => pid.id));
 
@@ -332,93 +355,58 @@ async function probeStart(config, tspcommand) {
 
                         if (newLatePidIndex !== -1 && oldTablePidIndex !== -1) {
                             j.pids[newLatePidIndex] = oldLateTables[oldTablePidIndex];
+
+
                         } else if (oldTablePidIndex !== -1) {
+                            // oldLateTables[oldTablePidIndex].bitrate = convertBitrate(oldLateTables[oldTablePidIndex].bitrate);
                             j.pids.push(oldLateTables[oldTablePidIndex]);
                             j.pids.sort((a, b) => a.id - b.id);
+
                         }
                     });
 
 
 
 
-                    /* function setBitrate(target, id, defaultBitrate = 0) {
-                         const analyze = allTables.analyze || {};
-                         const pids = analyze.pids || [];
- 
-                         if (pids.length > 0) {
-                             const pid = pids.find(k => k.id === id);
- 
-                             if (pid?.id === 0) { console.log("PAT bitrate: " + pid.bitrate) }
- 
- 
-                             const bitrate = pid?.bitrate || defaultBitrate;
-                             target["#nodes"] && (target["#nodes"][0]["bitrate"] = bitrate);
-                         } else {
-                             // Handle the case when pids is not an array or is empty
-                             // You may choose to set a default bitrate or handle it differently
- 
-                             console.log("vado di qua:")
- 
-                             target["#nodes"] && (target["#nodes"][0].bitrate = defaultBitrate);
-                         }
-                     }*/
-
-                    function setBitrateTables(target, id) {
-
-                        const pid = allTables?.analyze?.pids?.length > 0 && allTables.analyze.pids.find(k => k["id"] === id);
-                        // console.log("PID: " + pid)
-                        const tableBitrate = pid?.bitrate && convertBitrate(pid.bitrate);
-                        // console.log("PAT bitrate: " + tableBitrate)
-
-                        if (target["#nodes"] && target["#nodes"][0]) {
-                            target["#nodes"][0]["bitrate"] = tableBitrate;
-                        }
-
-
-                        //console.log("New Bitrate: " + target.pat["#nodes"][0]["bitrate"])
-
-                    }
-
-
                     if (allTables?.analyze?.pids) {
                         // PAT
-                        //setBitrate(allTables.pat, TablePid.PAT);
                         setBitrateTables(allTables.pat, TablePid.PAT);
 
                         // CAT
-                        //setBitrate(allTables.cat, TablePid.CAT);
                         setBitrateTables(allTables.cat, TablePid.CAT);
 
                         // PMTs
                         allTables.pmt.forEach(k => {
-                            //setBitrate(k, k["#nodes"][0].pid);
                             setBitrateTables(k, k["#nodes"][0].pid);
                         });
 
                         // NIT
-                        //setBitrate(allTables.nit, TablePid.NIT);
                         setBitrateTables(allTables.nit, TablePid.NIT);
 
                         // SDT and BAT
-                        const sdtPid = allTables.analyze.pids.find(k => k && k.id === TablePid.SDT_BAT);
-                        const sdtBitrate = sdtPid && sdtPid.bitrate || 0;
-                        //setBitrate(allTables.sdt, TablePid.SDT_BAT, sdtBitrate);
-                        //setBitrate(allTables.bat, TablePid.SDT_BAT, sdtBitrate); // BAT is the same pid as SDT
+                        //const sdtPid = allTables.analyze.pids.find(k => k && k.id === TablePid.SDT_BAT);
+                        //const sdtBitrate = sdtPid && sdtPid.bitrate || 0;
 
                         setBitrateTables(allTables.sdt, TablePid.SDT_BAT);
                         setBitrateTables(allTables.bat, TablePid.SDT_BAT); // BAT is the same pid as SDT
                     }
 
-                    //Format the bitrate for the PIDS:
-                    allTables.analyze.pids.forEach(k=> {
-                        k.bitrate = convertBitrate(k.bitrate);
+
+                    //allTables.analyze.pids = j.pids;
+
+                    //Format the bitrate for the PIDS
+                    allTables?.analyze?.pids.forEach(k => {
+                        //The Bitrate for the slow tabless
+                        if (!lateTablesPid.includes(k.id)) {
+                            k.bitrate = convertBitrate(k.bitrate);
+                        } else {
+                           // const slowTableBitrate = oldLateTables.find(x => x.id === k.id)?.bitrate;
+                           // k.bitrate = convertBitrate(slowTableBitrate);
+                        }
+
+
                     })
 
-  
-
-
-                    allTables.analyze.pids = j.pids;
-                    // sendEventsToAll(allTables);
                     allTables.analyze.services = j.services;
 
                 }

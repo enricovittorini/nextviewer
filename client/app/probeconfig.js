@@ -212,7 +212,7 @@ function ProbeConfig({ data }) {
     return (
         <>
 
-            <div className='row g-3 mb-5'>
+            <div className='row g-2 mb-3'>
                 <div className="col-12 col-md-12 col-lg-11">
                     <form onSubmit={handleSubmit}>
                         <fieldset className="row g-3" disabled={formStatus === 'disabled'}>
