@@ -145,8 +145,10 @@ async function probeStart(config, tspcommand) {
                 const match = regexPattern.exec(data);
                 allTables.bitrate["date"] = match[1];
                 allTables.bitrate["time"] = match[2];
-                allTables.bitrate["tsbitrate"] = match[3];
-                allTables.bitrate["netbitrate"] = match[4];
+
+                allTables.bitrate["tsbitrate"] = convertBitrate(match[3].replace(/,/g, ''));
+                allTables.bitrate["netbitrate"] = convertBitrate(match[4].replace(/,/g, ''));
+                allTables.bitrate["nullbitrate"] = convertBitrate(match[3].replace(/,/g, '') - match[4].replace(/,/g, ''));
 
                 if (allTables.bitrate.tsbitrate === "0") {
 
@@ -411,6 +413,10 @@ async function probeStart(config, tspcommand) {
                     allTables.analyze.pids.forEach(k=> {
                         k.bitrate = convertBitrate(k.bitrate);
                     })
+
+  
+
+
                     allTables.analyze.pids = j.pids;
                     // sendEventsToAll(allTables);
                     allTables.analyze.services = j.services;

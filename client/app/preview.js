@@ -53,14 +53,14 @@ function Preview({ /*serviceNames, */services, previewId, image, desc }) {
                 console.log(s)
                 // Exclude the service from the preview list if the video is scrambled
                 let videoComponent = s.components.some(k => { return (k.video === true && k.is_scrambled === false) })
-                console.log(videoComponent)
 
                 if (videoComponent) {
                     servicesObject[s.service_id] = s.service_name
                 }
             }
-            setServiceList(servicesObject);
+            
         }
+        setServiceList(servicesObject);
 
         //Neet to change teh 
         previewId === null ? setSid(0) : setSid(previewId);

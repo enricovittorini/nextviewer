@@ -86,7 +86,6 @@ export default function Home() {
 
       events.addEventListener('description', (event) => {
         const data = event.data;
-        //console.log(data)
         setPreviewPidDescription(data.toString());
       })
 
@@ -101,35 +100,13 @@ export default function Home() {
   let nullbittrate = 0;
 
   if (allTables && allTables.bitrate && allTables.bitrate.tsbitrate) {
-    //tsbitrate = convertBitrate(allTables.bitrate.tsbitrate.replaceAll(',', ''));
-    tsbitrate = convertBitrate(allTables.bitrate.tsbitrate.replace(/,/g, ''));
-    //netbitrate = convertBitrate(allTables.bitrate.netbitrate.replaceAll(',', ''));
-    netbitrate = convertBitrate(allTables.bitrate.netbitrate.replace(/,/g, ''));
-    //nullbittrate = convertBitrate((allTables.bitrate.tsbitrate.replaceAll(',', '') - allTables.bitrate.netbitrate.replaceAll(',', '')));
-    nullbittrate = convertBitrate((allTables.bitrate.tsbitrate.replace(/,/g, '') - allTables.bitrate.netbitrate.replace(/,/g, '')));
+    tsbitrate = allTables?.bitrate?.tsbitrate;
+    netbitrate = allTables?.bitrate?.netbitrate;
+    nullbittrate = allTables.bitrate?.nullbitrate;
 
   }
 
-  /*var clearServices = allTables?.analyze?.services?.filter(k => k["is-scrambled"] === false) || null;
-
-  const serviceNames = (allTables.sdt && allTables.sdt["#nodes"]) && allTables.sdt["#nodes"]
-    .filter(node => node["#name"] === "service")
-    .reduce((result, service) => {
-      const serviceId = service.service_id;
-      const serviceNameNode = service["#nodes"].find(node => node["#name"] === "service_descriptor");
-      const serviceName = serviceNameNode ? serviceNameNode.service_name : null;
-
-      if (serviceId && serviceName) {
-        result[serviceId] = serviceName;
-      }
-
-      return result;
-    }, {});*/
-
-
-
   return (
-
 
     <>
       <SpinnerConnection data={connectionStatus} />
@@ -174,7 +151,6 @@ export default function Home() {
 
         <div className='col-md-12 col-lg-3'>
           <div className='row'>
-          {/*  <Preview serviceNames={serviceNames} services={clearServices} previewId={probeConfig.previewSid} image={previewImage} pids={allTables.pids} desc={previewPidDescription} />*/}
           <Preview services={allTables.servicelist} previewId={probeConfig.previewSid} image={previewImage} pids={allTables.pids} desc={previewPidDescription} />
           </div>
           <hr />

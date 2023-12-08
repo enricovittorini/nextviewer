@@ -28,7 +28,7 @@ let config = {
     "interface": null,
     "status": "stopped",
     "previewSid": 0,
-    "description": null,
+    "description": "",
 }
 
 
@@ -75,7 +75,7 @@ function eventsHandler(request, response, next) {
     sendEventsToOne(newClient, "config", config);
     sendEventsToOne(newClient, "allTables", getAllTables());
     sendEventsToOne(newClient, 'previewImage', nopreview);
-    sendEventsToOne(newClient, 'description', config.description ? config.description : null );
+    sendEventsToOne(newClient, 'description', config.description ? config.description : '' );
 
     request.on('close', () => {
         console.log(`${clientId} Connection closed`);
@@ -134,6 +134,7 @@ app.post('/stop', async function (req, res) {
             previewcommand = null;
             config.previewSid = 0;
             sendEventsToAll('previewImage', nopreview);
+            sendEventsToAll('description', " ");
         }
 
         config.status = "stopped";
@@ -238,6 +239,7 @@ app.post('/stoppreview', async function (req, res) {
             config.previewSid = 0;
             sendEventsToAll('config', config);
             sendEventsToAll('previewImage', nopreview);
+            sendEventsToAll('description', " ");
             res.json(config);
 
         });

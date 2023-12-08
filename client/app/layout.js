@@ -10,7 +10,7 @@ import './css/tree.css';
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'tsviewer',
+  title: 'NextViewer',
   description: 'A DVB TS Viewer app',
 }
 
