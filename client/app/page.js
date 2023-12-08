@@ -69,7 +69,7 @@ export default function Home() {
 
       events.addEventListener('servicelist', (event) => {
         const parsedData = JSON.parse(event.data);
-        console.log(parsedData)
+        //console.log(parsedData)
       })
 
 
