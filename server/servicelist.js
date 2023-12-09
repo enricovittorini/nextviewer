@@ -92,6 +92,7 @@ function getPidProperties(pids, x, elcomp) {
     const component = {}
     const pid = pids.find(k => k.id === x);
 
+
     // Do not include PMT, ECM and  EMM in the component list
     if (!pid.pmt && !pid.ecm && !pid.emm) {
         let [icon, scrambledIcon, description, descriptionDetails] = getPidType(pid);
