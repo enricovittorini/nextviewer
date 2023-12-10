@@ -426,18 +426,21 @@ async function probeStart(config, tspcommand) {
 
                     //----- New
                     // Create a set of IDs in arrayB for faster lookup
-                    let arrayB = j.pids;
+
 
                     // let arrayA = allTables.analyze.pids;
 
                     // Create a set of IDs in arrayA for faster lookup
                     // Create a set of IDs in arrayA for faster lookup
-                    let setA;
+
                     if (!allTables.analyze.pids) {
                         allTables.analyze.pids = [];
                     }
-                    setA = new Set(allTables.analyze.pids.map(elementA => elementA.id));
-                    const setB = new Set(arrayB.map(elementB => elementB.id));
+
+                    let setA = new Set(allTables.analyze.pids.map(el => el.id));
+
+                    let arrayB = j.pids;
+                    const setB = new Set(arrayB.map(el => el.id));
 
 
 
@@ -454,12 +457,18 @@ async function probeStart(config, tspcommand) {
                                 elementA.bitrate = convertBitrate(elementA.bitrate);
 
                             }
-                            return { ...elementA }
+                            //console.log("PID: " + elementA.id);
+                            //console.log("Late: " + elementA.late)
+
+                            if (elementA.late < 10 || elementA.late === undefined) {
+                                return {
+                                    ...elementA,
+                                    bitrate: convertBitrate(0),
+                                    late: elementA.late !== undefined ? elementA.late++ : 0
+                                }
+                            }
                         }
                     });
-
-                    //console.log(arrayA)
-
 
 
                     // Add elements in B not in A to A
@@ -471,31 +480,32 @@ async function probeStart(config, tspcommand) {
                                 late: 0,
                             });
                             setA.add(elementB.id); // Update the set to include the newly added element
-                            allTables.analyze.pids.sort((a, b) => a.id - b.id);
+
                         }
                     });
+                    allTables.analyze.pids.sort((a, b) => a.id - b.id);
 
 
 
                     // Increment "late" for elements in A not in B
-                    allTables.analyze?.pids?.forEach((elementA, index) => {
-                        if (!setB.has(elementA.id)) {
-                            console.log(elementA.late)
-                            elementA.late ? elementA.late = elementA.late++ : elementA.late = 0;
-                            //elementA.late++;
-                            elementA.bitrate = convertBitrate(0);
-                            console.log("PID is late: " +  elementA.id)
-                            console.log("Late is: " +  elementA.late)
-                        }
+                    /*  allTables.analyze?.pids?.forEach((elementA, index) => {
+                          if (!setB.has(elementA.id)) {
+                              console.log(elementA.late)
+                              elementA.late ? elementA.late = elementA.late++ : elementA.late = 0;
+                              //elementA.late++;
+                              elementA.bitrate = convertBitrate(0);
+                              console.log("PID is late: " + elementA.id)
+                              console.log("Late is: " + elementA.late)
+                          }
+  
+                          // if lates element is > 10 (not present for more than 10s, remove the PID)
+                          if (elementA.late > 9) {
+                              allTables.analyze.pids.splice(index, 1)
+                          }
+  
+                      });*/
 
-                        // if lates element is > 10 (not present for more than 10s, remove the PID)
-                        if (elementA.late > 9) {
-                            allTables.analyze.pids.splice(index, 1)
-                        }
 
-                    });
-
-                   
                     //----- END New ----
 
 
