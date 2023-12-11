@@ -62,7 +62,7 @@ function Preview({ /*serviceNames, */services, previewId, image, desc }) {
         }
         setServiceList(servicesObject);
 
-        //Neet to change teh 
+        //Neet to change the 
         previewId === null ? setSid(0) : setSid(previewId);
 
     }, [services, previewId])
@@ -111,7 +111,9 @@ function Preview({ /*serviceNames, */services, previewId, image, desc }) {
 
             <div className='row'>
                 <div className='col-12'>
+                   
                     <p>{description}</p>
+                
                 </div>
             </div>
 

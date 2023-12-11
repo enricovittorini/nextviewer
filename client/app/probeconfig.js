@@ -26,6 +26,20 @@ function ProbeIp({ config }) {
     )
 }
 
+function ProbeDtU245(config) {
+    const [device, setDevice] = useState(config?.dektec?.device ? config.dektec.device : '');
+    const [channel, setChannel] = useState(config?.dektec?.channel ? config.dektec.channel : '');
+
+    return (
+        <>
+
+        </>
+
+    )
+
+
+}
+
 
 function ProbeSrt({ config, probeType }) {
 
@@ -222,6 +236,7 @@ function ProbeConfig({ data }) {
                                         <label htmlFor="type" className="form-label">Type</label>
                                         <select className="form-select form-select-sm" name="type" value={probeType} onChange={e => setProbeType(e.target.value)}>
                                             <option value="ip">IP</option>
+                                            <option value="dtu245">DTU-245</option>
                                             <option value="caller">SRT Caller</option>
                                             <option value="listener">SRT Listener</option>
                                         </select>
@@ -229,7 +244,7 @@ function ProbeConfig({ data }) {
 
                                     <div className='col'>
                                         <label htmlFor="type" className="form-label" >Interface</label>
-                                        <select className="form-select form-select-sm" name="interface" value={probeInterface} onChange={e => setInterface(e.target.value)}>
+                                        <select className="form-select form-select-sm" name="interface" value={probeInterface} onChange={e => setInterface(e.target.value)} disabled={probeType === "dtu245"  }>
                                             {
                                                 config.interfaceList && config.interfaceList.map((k, index) => (
                                                     <option key={index} value={k}>{k}</option>
@@ -244,6 +259,7 @@ function ProbeConfig({ data }) {
                                     {(probeType === "ip" || probeType === null) && <ProbeIp config={config} />}
                                     {(probeType === "caller") && <ProbeSrt config={config} probeType={"caller"} />}
                                     {(probeType === "listener") && <ProbeSrt config={config} probeType={"listener"} />}
+                                    {(probeType === "dtu245") && <ProbeDtU245 config={config} />}
                                 </div>
                             </div>
 

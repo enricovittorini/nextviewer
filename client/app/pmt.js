@@ -2,7 +2,7 @@
 'use client'
 import { useState, useEffect } from 'react';
 import getEsIcon from './getEsIcon'
-import convertBitrate from './utils/convertBitrate';
+//import convertBitrate from './utils/convertBitrate';
 
 function Properties({ data }) {
     let serviceId = data.service_id;

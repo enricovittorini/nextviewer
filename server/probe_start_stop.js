@@ -16,7 +16,7 @@ const generalCommand = [
     '-P', 'bitrate_monitor', '-p', '1', '-t', '1',
     '-P', 'tables', '--log-json-line', '--psi-si', '--pid', '18', '--pid', '20', '--invalid-versions', '--default-pds', '0x00000028',
     '-P', 'analyze', '--unreferenced-pid-list', '-i', '1', '--json-line',
-    '-P', 'analyze', '--unreferenced-pid-list', '-i', '10', '--json-line=SLOWTAB',
+   // '-P', 'analyze', '--unreferenced-pid-list', '-i', '10', '--json-line=SLOWTAB',
     '-P', 'continuity',
     //'-P', 'analyze', '--unreferenced-pid-list', '-i', '1', '--json-line=ANACONT',
 ];
@@ -424,66 +424,55 @@ async function probeStart(config, tspcommand) {
                     }
 
 
-                    //----- New
-                    // Create a set of IDs in arrayB for faster lookup
+                    //----- New ----------------
+                    const threshold = 10;
 
-
-                    // let arrayA = allTables.analyze.pids;
-
-                    // Create a set of IDs in arrayA for faster lookup
-                    // Create a set of IDs in arrayA for faster lookup
-
-                    if (!allTables.analyze.pids) {
-                        allTables.analyze.pids = [];
+                    if (!allTables.analyze.pids){
+                        console.log("PIDS list is empty. Filling it")
+                        allTables.analyze.pids = j.pids;
                     }
 
-                    let setA = new Set(allTables.analyze.pids.map(el => el.id));
+                    // Iterate over analyze.pids array in reverse order
+                    /* If check if the PID in analyze.pid is present in j.pids
+                        - if yes, replace the element in analyze.pids with j.pids and updated the bitrate
+                        - it not, set the missingCout and increment it
+                    finally, if the missingcount is more than the threshold, remove it */
+                    for (let index = allTables.analyze?.pids?.length - 1; index >= 0; index--) {
+                        const analyzePid = allTables.analyze.pids[index];
+                        const jPid = j.pids.find((jItem) => jItem.id === analyzePid.id);
 
-                    let arrayB = j.pids;
-                    const setB = new Set(arrayB.map(el => el.id));
-
-
-
-                    // Replace elements in A that are also in B with the element in B and covnert bitrate
-                    allTables.analyze.pids = allTables.analyze?.pids?.map(elementA => {
-                        if (setB.has(elementA.id)) {
-                            const correspondingElementB = arrayB.find(elementB => elementA.id === elementB.id);
-                            return {
-                                ...correspondingElementB,
-                                bitrate: convertBitrate(correspondingElementB.bitrate),
+                        if (jPid) {
+                            allTables.analyze.pids[index] = {
+                                ...jPid,
+                                bitrate: convertBitrate(jPid.bitrate),
                             };
                         } else {
-                            if (typeof elementA.bitrate === 'number') {
-                                elementA.bitrate = convertBitrate(elementA.bitrate);
+                            analyzePid.missingCount = (analyzePid.missingCount || 0) + 1;
+                            analyzePid.bitrate = convertBitrate(0);
+                            console.log("PID is late: " + analyzePid.id + ",missing count is: " + analyzePid.missingCount)
 
-                            }
-                            //console.log("PID: " + elementA.id);
-                            //console.log("Late: " + elementA.late)
-
-                            if (elementA.late < 10 || elementA.late === undefined) {
-                                return {
-                                    ...elementA,
-                                    bitrate: convertBitrate(0),
-                                    late: elementA.late !== undefined ? elementA.late++ : 0
-                                }
+                            if (analyzePid.missingCount > threshold) {
+                                // Remove the object from analyze.pids
+                                console.log("Removing PID: " + analyzePid.id)
+                                allTables.analyze.pids.splice(index, 1);
+                                
                             }
                         }
-                    });
+                    }
 
-
-                    // Add elements in B not in A to A
-                    arrayB.forEach(elementB => {
-                        if (!setA.has(elementB.id)) {
-                            allTables.analyze.pids.push({
-                                ...elementB,
-                                bitrate: convertBitrate(elementB.bitrate),
-                                late: 0,
+                    // Iterate over j.pids array to find and add new objects to analyze.pids
+                    j.pids.forEach((jPid) => {
+                        if (!allTables.analyze?.pids?.find((analyzePid) => analyzePid.id === jPid.id)) {
+                            allTables.analyze?.pids?.push({
+                                ...jPid,
+                                bitrate: convertBitrate(jPid.bitrate),
+                                missingCount: 0,
                             });
-                            setA.add(elementB.id); // Update the set to include the newly added element
-
                         }
                     });
-                    allTables.analyze.pids.sort((a, b) => a.id - b.id);
+
+
+                    allTables.analyze?.pids?.sort((a, b) => a.id - b.id);
 
 
 
