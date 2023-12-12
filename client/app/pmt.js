@@ -138,13 +138,14 @@ function renderTable(data, service) {
     let tablePid = nodes[pidIndex]["pid"];
 
     //Serivce ID of the PMT
-    let serviceId = data["service_id"] !== null ? data["service_id"] : null;
-    let serviceName = service.name !== null ? service.name : "Unknown";
+    let serviceId = data["service_id"] ?? null;
+    let serviceName = service?.name ?? "Unknown";
+
 
     //PMT bitrate
-    var pmtbitrate = data["#nodes"][0].bitrate !== undefined ? data["#nodes"][0].bitrate : 0;
-    //let bitrate = Intl.NumberFormat('en-US', { style: 'unit', unit: "kilobit-per-second", maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(pmtbitrate)
-    //const bitrate = convertBitrate(pmtbitrate);
+    //var pmtbitrate = data["#nodes"][0].bitrate !== undefined ? data["#nodes"][0].bitrate : 0;
+    let pmtbitrate = data["#nodes"][0]?.bitrate ?? 0;
+
     const bitrate = pmtbitrate;
 
     return (

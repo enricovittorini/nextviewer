@@ -54,6 +54,10 @@ export default function Home() {
         console.log("An error occurred while attempting to connect.");
         setConnectionStatus('danger');
 
+        setAllTables({});
+        setPreviewImage(nopreview);
+        setPreviewPidDescription('')
+
       };
 
       // onopen version
@@ -100,10 +104,10 @@ export default function Home() {
   let netbitrate = 0;
   let nullbittrate = 0;
 
-  if (allTables && allTables.bitrate && allTables.bitrate.tsbitrate) {
-    tsbitrate = allTables?.bitrate?.tsbitrate;
-    netbitrate = allTables?.bitrate?.netbitrate;
-    nullbittrate = allTables.bitrate?.nullbitrate;
+  if (allTables && allTables.tsbitrate && allTables.tsbitrate.bitrate) {
+    tsbitrate = allTables?.tsbitrate?.bitrate;
+    netbitrate = allTables?.tsbitrate?.net;
+    nullbittrate = allTables.tsbitrate?.stuffing;
 
   }
 
