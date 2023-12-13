@@ -78,10 +78,10 @@ stout.on('line', (data) => {
     const line = data.split(":");
     const deviceIndex = parseInt(line[0]);
     //console.log(deviceIndex)
-    const deviceType = line[1].substr(0,line[1].indexOf("(")).trim();
+    const deviceType = line[1].substr(0, line[1].indexOf("(")).trim();
     //console.log(deviceType)
-     config.dektec[`${deviceType}`].deviceIndex.push(deviceIndex);
-     //console.log(config)
+    config.dektec[`${deviceType}`].deviceIndex.push(deviceIndex);
+    //console.log(config)
 })
 /* END DEKTEC DEVICE */
 
@@ -196,7 +196,7 @@ app.post('/startpreview', async function (req, res) {
     try {
         const sid = req.body;
 
-        const pidDescription =  getPidDescription(sid.sid, await getAllTables());
+        const pidDescription = getPidDescription(sid.sid, await getAllTables());
         pidDescription.then((description) => {
             console.log(description)
             config.description = description;
@@ -244,7 +244,7 @@ app.post('/startpreview', async function (req, res) {
 
                     if (previewcommand) {
                         config.previewSid = sid.sid;
-                        
+
                         sendEventsToAll('config', config);
                         sendEventsToAll('description', config.description);
                         res.json(config);
@@ -300,8 +300,20 @@ app.post('/resetcc', async function (req, res) {
     try {
         const tables = await getAllTables();
         if (tables && tables.stats) {
-            tables.stats.cc = 0;
-            sendEventsToAll(tables);
+
+
+            const resetcc = spawn('tspcontrol', ['-t', 'localhost:3001', 'restart', '-s', '4']);
+
+
+            resetcc.on('exit', async (code) => {
+                if (code === 0) {
+                    tables.stats.cc = 0;
+                    sendEventsToAll(tables);
+                }
+            })
+
+
+
         }
         res.status(200).end();
     }

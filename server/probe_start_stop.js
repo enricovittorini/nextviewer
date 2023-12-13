@@ -19,7 +19,7 @@ const generalCommand = [
     '-P', 'tables', '--log-json-line=TABLES', '--psi-si', '--pid', '18', '--pid', '20', '--invalid-versions', '--default-pds', '0x00000028',
     '-P', 'analyze', '--unreferenced-pid-list', '-i', '1', '--json-line=ANABITRATE',
     '-P', 'analyze', '--unreferenced-pid-list', '-c', '-i', '5', '--json-line=ANASLOW',
-    '-P', 'continuity','--json-line=CONTINUITY'
+   // '-P', 'continuity','--json-line=CONTINUITY'
 ];
 
 
@@ -394,6 +394,9 @@ async function probeStart(config, tspcommand) {
                         } else { jPid.bitrate = convertBitrate(0)};
                     })
                     allTables.analyze = j;
+                    allTables.stats.cc = ccError(allTables.analyze.pids);
+
+
 
                     break;
 
@@ -416,9 +419,10 @@ async function probeStart(config, tspcommand) {
                 if so, uses the default value of 0. Then, it increments the result by 1. */
                 // if (table === "continuity") {
                 //case "continuity":
-                case "CONTINUITY":
+               /* case "CONTINUITY":
                     allTables.stats.cc = (allTables.stats.cc ?? 0) + 1;
                     break;
+                    */
                 default:
                     break;
             }
