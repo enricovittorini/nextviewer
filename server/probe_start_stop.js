@@ -5,22 +5,21 @@ const TablePid = require('./constants');
 const srtVesion = require('./getSrtVersion');
 const getServicelist = require('./servicelist');
 const convertBitrate = require('./convertBitrate');
+const ccError = require('./utils/ccError')
+//const getPidDescription = require('./getPidDescription')
 
 const probeCtrlPort = 3001; // Probe process control port
-let allTables = { "pat": {}, "cat": {}, "pmt": [], "sdt": {}, "sdtOther": [], "bat": {}, "nit": {}, "analyze": {}, "servicelist": {}, "bitrate": {}, "srt": {}, "stats": {}, "info": {} };
-let oldLateTables = []; // keep track of old tables
-const lateTablesPid = [16, 17, 18, 20, 21]; //There are tables with potentially high repetitionrate. Use "analyze" with high interval
-tableRepRate = {"16": 0, "17": 0, "18":0, "21":0};
+const allTables = { "pat": {}, "cat": {}, "pmt": [], "sdt": {}, "sdtOther": [], "bat": {}, "nit": {}, "analyze": {}, "servicelist": {}, "tsbitrate": {}, "srt": {}, "stats": {}, "info": {} };
+const removePidTthreshold = 20; // is PID is missing more than 10 cycles of evalauiton (10s). remove it
+
 
 const generalCommand = [
-    '-P', 'bitrate_monitor', '-p', '2', '-t', '3',
-    '-P', 'tables', '--log-json-line', '--psi-si', '--pid', '18', '--pid', '20', '--invalid-versions', '--default-pds', '0x00000028',
-    '-P', 'analyze', '--unreferenced-pid-list', '-i', '2', '--json-line',
-    '-P', 'analyze', '--unreferenced-pid-list', '-i', '11', '--json-line=SLOWTAB',
-    '-P', 'continuity',
-    //'-P', 'analyze', '--unreferenced-pid-list', '-c','-i', '5', '--json-line=ANACONT',
+    '-P', 'bitrate_monitor', '-p', '1', '-t', '1', '--json-line=BITRATE',
+    '-P', 'tables', '--log-json-line=TABLES', '--psi-si', '--pid', '18', '--pid', '20', '--invalid-versions', '--default-pds', '0x00000028',
+    '-P', 'analyze', '--unreferenced-pid-list', '-i', '1', '--json-line=ANABITRATE',
+    '-P', 'analyze', '--unreferenced-pid-list', '-c', '-i', '5', '--json-line=ANASLOW',
+   // '-P', 'continuity','--json-line=CONTINUITY'
 ];
-
 
 
 async function getAllTables() {
@@ -61,7 +60,7 @@ function srtCommand(config) {
     if (config.type === "caller") {
         let params = [
             '-I', 'srt', "--" + config.type, config.address, '--local-interface', config.interface, '--latency', config.latency, '--transtype', 'live', '--messageapi',
-            '--statistics-interval', '1000', '--json-line'
+            '--statistics-interval', '1000', '--json-line=SRT'
         ];
 
         if (parseInt(config.encryption) !== 0) {
@@ -87,8 +86,7 @@ function srtCommand(config) {
 
 
 
-
-// const probeStart = function probeStart(config, tspcommand) {
+/* PROBE START */
 async function probeStart(config, tspcommand) {
 
     allTables.info.srtversion = await srtVesion();
@@ -117,7 +115,7 @@ async function probeStart(config, tspcommand) {
 
         tspcommand = spawn('tsp', ['--control-port', probeCtrlPort, ...commandParam, ...generalCommand, '-P', 'filter', '-n', '-O', 'ip', '127.0.0.1:3333']);
 
-        console.log(tspcommand.spawnargs.join(', ').replace(/,/g, ''))
+        //console.log(tspcommand.spawnargs.join(', ').replace(/,/g, ''))
 
         const ster = readline.createInterface({
             input: tspcommand.stderr,
@@ -130,247 +128,172 @@ async function probeStart(config, tspcommand) {
 
         ster.on('line', async (data) => {
 
-            const table = data.substring(2, data.indexOf(":"));
-
-            if (table === "bitrate_monitor") {
-                /* *******************************************
-                *************** BITRATE PLUGIN  **************
-                **********************************************/
-                //sendData = true;
-                //const j = JSON.parse(data.substring(10));
-                console.log(data)
-
-                //Define a regular expression pattern to match the required values
-                const regexPattern = /bitrate_monitor: (\d{4}\/\d{2}\/\d{2}) (\d{2}:\d{2}:\d{2}), TS bitrate: ([\d,]+) bits\/s, net bitrate: ([\d,]+) bits\/s/;
-
-                // Use the RegExp.exec() method to extract values
-                const match = regexPattern.exec(data);
-                allTables.bitrate["date"] = match[1];
-                allTables.bitrate["time"] = match[2];
-
-                allTables.bitrate["tsbitrate"] = convertBitrate(match[3].replace(/,/g, ''));
-                allTables.bitrate["netbitrate"] = convertBitrate(match[4].replace(/,/g, ''));
-                allTables.bitrate["nullbitrate"] = convertBitrate(match[3].replace(/,/g, '') - match[4].replace(/,/g, ''));
-
-                if (allTables.bitrate.tsbitrate === "0") {
-
-                    reparseTable = true; // When bitrate goes to 0, this will trigger a reparse of the tables
-
-                    // when bitrate goes to zero, clean allTables
-                    clearObject(allTables);
-
-
-                } else if (reparseTable) {
-                    spawn('tspcontrol', ['-t', 'localhost:3001', 'restart', '-s', '2']);
-                    reparseTable = false;
-                }
-
-                //bitrate monitor is the most frequent plugin. Send allTables  only here
-                allTables.servicelist = getServicelist(allTables.sdt, allTables.analyze);
-                sendEventsToAll('allTables', allTables);
-
-                //sendEventsToAll('servicelist', getServicelist(allTables.sdt, allTables.analyze));
-
+            const table = data.substring(data.indexOf(":") + 1, data.indexOf("{")).trim()
+            let j;
+            //console.log(table)
+            try {
+                j = JSON.parse(data.substring(data.indexOf("{")));
+            } catch (e) {
+                 console.log("Not a json line")
             }
 
-            if (table === "tables") {
+            switch (table) {
+                case "BITRATE":
+    
+                    /* *******************************************
+                    *************** BITRATE PLUGIN  **************
+                    **********************************************/
+                    // { "bitrate": 24882317, "net": 23917618, "status": "normal", "stuffing": 964699, "time": "2023/12/12 06:33:34", "type": "ts" }
+                    allTables.tsbitrate.time = j.time;
+                    allTables.tsbitrate.bitrate = convertBitrate(j.bitrate || 0);
+                    allTables.tsbitrate.net = convertBitrate(j.net || 0);
+                    allTables.tsbitrate.stuffing = convertBitrate(j.stuffing || 0);
 
-                const j = JSON.parse(data.substring(10));
+                    console.log("Date: " + allTables.tsbitrate.time + " - TS bitrate: " + allTables.tsbitrate.bitrate + " - Net bitrate: " + allTables.tsbitrate.net + " - Stuffing: " + allTables.tsbitrate.stuffing)
 
-                if (j["#name"] === "PAT") {
+                    if (j.bitrate === 0) {
 
-                    //console.log("tables: PAT");
-
-                    j["#nodes"][0]["bitrate"] = 0;
-
-                    // Every time a new PAT is generated, i need to clean the PMT by removing the services not listed in the PAT
-                    const serviceIdsA = j["#nodes"]
-                        .filter(node => node["#name"] === "service")
-                        .map(node => node["service_id"]);
-
-                    allTables.pmt = allTables.pmt.filter(itemB => serviceIdsA.includes(itemB["service_id"]));
-
-                    //Every time i see a PAT, i restart the table plugin to catch cases where a PMT previously removed is added again
-
-                    /*  setTimeout(() => {
-                         spawn('tspcontrol', ['-t', 'localhost:3001', 'restart', '-s', '2']);
-                          
-                      }, 2000);*/
-
-                    //Assing j to pat array
-                    allTables.pat = j;
-
-                };
-
-                if (j["#name"] === "CAT") {
-                    // console.log("tables: CAT")
-                    j["#nodes"][0]["bitrate"] = 0;
-
-                    allTables.cat = j;
-
-                };
+                        reparseTable = true; // When bitrate goes to 0, this will trigger a reparse of the tables
+                        // when bitrate goes to zero, clean allTables
+                        clearObject(allTables);
+                        sendEventsToAll('allTables', allTables)
 
 
-                if (j["#name"] === "PMT") {
-                    //console.log("tables: PMT")
-                    j["#nodes"][0]["bitrate"] = 0;
-
-                    //If "j" is already in pmt array, overwrite it. Else push it
-                    const idx = allTables.pmt.findIndex(k => k.service_id === j.service_id);
-                    if (idx !== -1) {
-                        allTables.pmt[idx] = j;
-                    } else {
-
-                        allTables.pmt.push(j);
-                        //Sort PMT ascending
-                        allTables.pmt.sort((a, b) => a.service_id - b.service_id);
+                    } else if (reparseTable) {
+                        spawn('tspcontrol', ['-t', 'localhost:3001', 'restart', '-s', '2']);
+                        reparseTable = false;
                     }
 
-                };
+                    //bitrate monitor is the most frequent plugin. Send allTables  only here
+                    allTables.servicelist = getServicelist(allTables.sdt, allTables.analyze);
+
+                    break;
+
+                case "TABLES":
+
+                    //const j = JSON.parse(data.substring(10));
+
+                    if (j["#name"] === "PAT") {
+
+                        //console.log("tables: PAT");
+
+                        j["#nodes"][0]["bitrate"] = 0;
+
+                        // Every time a new PAT is generated, i need to clean the PMT by removing the services not listed in the PAT
+                        const serviceIdsA = j["#nodes"]
+                            .filter(node => node["#name"] === "service")
+                            .map(node => node["service_id"]);
+
+                        allTables.pmt = allTables.pmt.filter(itemB => serviceIdsA.includes(itemB["service_id"]));
+
+                        //Every time i see a PAT, i restart the table plugin to catch cases where a PMT previously removed is added again
+
+                        /*  setTimeout(() => {
+                             spawn('tspcontrol', ['-t', 'localhost:3001', 'restart', '-s', '2']);
+                              
+                          }, 2000);*/
+
+                        //Assing j to pat array
+                        allTables.pat = j;
+
+                    };
+
+                    if (j["#name"] === "CAT") {
+                        // console.log("tables: CAT")
+                        j["#nodes"][0]["bitrate"] = 0;
+
+                        allTables.cat = j;
+
+                    };
 
 
-                if (j["#name"] === "SDT") {
-                    //console.log("tables: SDT")
-                    j["#nodes"][0]["bitrate"] = 0;
+                    if (j["#name"] === "PMT") {
+                        //console.log("tables: PMT")
+                        j["#nodes"][0]["bitrate"] = 0;
 
-                    if (j.actual) {
-                        allTables.sdt = j;
-                    } else {
-                        const onId = j.original_network_id
-                        const tsId = j.transport_stream_id
-                        const idx = allTables.sdtOther.findIndex(k => (k.original_network_id === onId && k.transport_stream_id === tsId));
-                        if (idx > -1) {
-                            //sdtOther[idx] = j;
-                            allTables.sdtOther[idx] = j;
+                        //If "j" is already in pmt array, overwrite it. Else push it
+                        const idx = allTables.pmt.findIndex(k => k.service_id === j.service_id);
+                        if (idx !== -1) {
+                            allTables.pmt[idx] = j;
                         } else {
-                            allTables.sdtOther.push(j)
-                            allTables.sdtOther.sort((a, b) => a.transport_stream_id - b.transport_stream_id);
+
+                            allTables.pmt.push(j);
+                            //Sort PMT ascending
+                            allTables.pmt.sort((a, b) => a.service_id - b.service_id);
+                        }
+
+                    };
+
+
+                    if (j["#name"] === "SDT") {
+                        //console.log("tables: SDT")
+                        j["#nodes"][0]["bitrate"] = 0;
+
+                        if (j.actual) {
+                            allTables.sdt = j;
+                        } else {
+                            const onId = j.original_network_id
+                            const tsId = j.transport_stream_id
+                            const idx = allTables.sdtOther.findIndex(k => (k.original_network_id === onId && k.transport_stream_id === tsId));
+                            if (idx > -1) {
+                                //sdtOther[idx] = j;
+                                allTables.sdtOther[idx] = j;
+                            } else {
+                                allTables.sdtOther.push(j)
+                                allTables.sdtOther.sort((a, b) => a.transport_stream_id - b.transport_stream_id);
+
+                            }
+                            // TO DO: sure that push is correct?
 
                         }
-                        // TO DO: sure that push is correct?
 
-                    }
+                    };
 
-                };
+                    if (j["#name"] === "BAT") {
+                        // console.log("tables: BAT")
+                        j["#nodes"][0]["bitrate"] = 0;
 
-                if (j["#name"] === "BAT") {
-                    // console.log("tables: BAT")
-                    j["#nodes"][0]["bitrate"] = 0;
+                        allTables.bat = j;
 
-                    allTables.bat = j;
-
-                };
+                    };
 
 
-                if (j["#name"] === "NIT") {
-                    // console.log("tables: NIT")
-                    j["#nodes"][0]["bitrate"] = 0;
+                    if (j["#name"] === "NIT") {
+                        // console.log("tables: NIT")
+                        j["#nodes"][0]["bitrate"] = 0;
 
-                    //nit = j //push(j)
-                    allTables.nit = j;
+                        //nit = j //push(j)
+                        allTables.nit = j;
 
-                };
+                    };
+                    break;
 
-            }
+  
+                case "ANABITRATE":
 
-            if (table === "analyze") {
-                /* **********************************************
-                   ********** ANALYZE PLUGIN SECTION ************
-                   **********************************************/
+                    /* **********************************************
+                       ********** ANALYZE PLUGIN SECTION ************
+                       **********************************************/
 
-                // Use a regular expression to match the value after "analyze: "
-
-                const regex = /analyze: (\w+)/;
-                const match = data.match(regex);
-
-                if (match) {
-
-                    const prefix = match[1];
-
-                    if (prefix === "SLOWTAB") {
-                        /*---------- SLOW TABLES ------------------------
-                        Keep track on the slow tables PIDs in oldLateTables
-                        This is used to as these tables cannot be tracked if i analyze the output every seconds. They take more time 
-                        */
-
-                        const j = JSON.parse(data.substring(18));
-
-                        // oldLateTables contains the PIDs of the "slow tables" 
-                        //Use Set for faster lookups
-                        //Use the filter method to create an array (oldLateTables) containing the elements from j.pids whose id is present in the lateTablesPid
-
-                        const lateTablesPidSet = new Set(lateTablesPid);
-                        oldLateTables = j.pids.filter(pid => lateTablesPidSet.has(pid.id));
-                        oldLateTables.forEach(k => {
-                            k.bitrate = convertBitrate(k.bitrate);
-                        })
-
-
-                    } else if (prefix === "ANACONT") {
-
-                        /* -------------  ANALYZE CONTINUITY and BITRATE ---------------- */
-                        //console.log("ANACONT bitrate");
-                        const j = JSON.parse(data.substring(18));
-                    }
-
-                } else {
-
-                    const j = JSON.parse(data.substring(10));
-
-                    //If allTables.analyze does not exist, set it equal to j.
-                    allTables.analyze = j//allTables.analyze && j;
-
+                    //const j = JSON.parse(data.substring(10));
 
                     function setBitrateTables(target, id) {
 
                         //Retrieve the bitrate value form the analyze.pid and convert it
                         const pid = allTables?.analyze?.pids?.length > 0 && allTables.analyze.pids.find(k => k["id"] === id);
-                        let tableBitrate  = 0;
+                        let tableBitrate = 0;
+
                         if (typeof pid?.bitrate === 'number') {
-                            
-                             tableBitrate = pid?.bitrate && convertBitrate(pid.bitrate);
+                            tableBitrate = convertBitrate(pid?.bitrate ? pid.bitrate : 0);
                         } else {
                             tableBitrate = pid?.bitrate && pid.bitrate;
                         }
 
-                            if (target["#nodes"] && target["#nodes"][0]) {
-                                target["#nodes"][0]["bitrate"] = tableBitrate;
-                            }
-                       
+                        if (target["#nodes"] && target["#nodes"][0]) {
+                            target["#nodes"][0]["bitrate"] = tableBitrate;
+                        }
 
                     }
-
-
-
-                    //Here i take the j.pids just received and swap the pid of the slow tables with what i have in the slowtables pids array.
-                    const newLatePidSet = new Set(j.pids.map(pid => pid.id));
-                    const oldLateTableSet = new Set(oldLateTables.map(pid => pid.id));
-
-                    lateTablesPid.forEach(latePid => {
-                        let newLatePidIndex = -1;
-                        let oldTablePidIndex = -1;
-
-                        if (newLatePidSet.has(latePid)) {
-                            newLatePidIndex = j.pids.findIndex(x => x.id === latePid);
-                        }
-
-                        if (oldLateTableSet.has(latePid)) {
-                            oldTablePidIndex = oldLateTables.findIndex(k => k.id === latePid);
-                        }
-
-                        if (newLatePidIndex !== -1 && oldTablePidIndex !== -1) {
-                            j.pids[newLatePidIndex] = oldLateTables[oldTablePidIndex];
-
-
-                        } else if (oldTablePidIndex !== -1) {
-                            // oldLateTables[oldTablePidIndex].bitrate = convertBitrate(oldLateTables[oldTablePidIndex].bitrate);
-                            j.pids.push(oldLateTables[oldTablePidIndex]);
-                            j.pids.sort((a, b) => a.id - b.id);
-
-                        }
-                    });
-
-
 
 
                     if (allTables?.analyze?.pids) {
@@ -386,58 +309,123 @@ async function probeStart(config, tspcommand) {
                         });
 
                         // NIT
-                        setBitrateTables(allTables.nit, TablePid.NIT);
-
-                        // SDT and BAT
-                        //const sdtPid = allTables.analyze.pids.find(k => k && k.id === TablePid.SDT_BAT);
-                        //const sdtBitrate = sdtPid && sdtPid.bitrate || 0;
-
-                        setBitrateTables(allTables.sdt, TablePid.SDT_BAT);
-                        setBitrateTables(allTables.bat, TablePid.SDT_BAT); // BAT is the same pid as SDT
-                    }
-
-
-                    //allTables.analyze.pids = j.pids;
-
-                    //Format the bitrate for the PIDS
-                    allTables?.analyze?.pids.forEach(k => {
-                        //The Bitrate for the slow tabless
-                        if (!lateTablesPid.includes(k.id)) {
-                            k.bitrate = convertBitrate(k.bitrate);
-                        } else {
-                           // const slowTableBitrate = oldLateTables.find(x => x.id === k.id)?.bitrate;
-                           // k.bitrate = convertBitrate(slowTableBitrate);
+                        const nitPid = j.pids.find(k => k.id === 16);
+                        if (allTables && allTables.nit && allTables.nit["#nodes"] && allTables.nit["#nodes"][0]) {
+                            allTables.nit["#nodes"][0]["bitrate"] = convertBitrate(nitPid ? nitPid.bitrate : 0);
                         }
 
+                        // SDT and BAT
+                        const sdtPid = j.pids.find(k => k.id === 17);
+                        if (allTables && allTables.sdt && allTables.sdt["#nodes"] && allTables.sdt["#nodes"][0]) {
+                            allTables.sdt["#nodes"][0]["bitrate"] = convertBitrate(sdtPid ? sdtPid.bitrate : 0);
+                        }
 
+                    }
+
+                    if (!allTables.analyze.pids) {
+                        break;
+                        //allTables.analyze.pids = j.pids;
+                    }
+
+                    // Iterate over analyze.pids array in reverse order
+                    /* If check if the PID in analyze.pid is present in j.pids
+                        - if yes, replace the element in analyze.pids with j.pids and updated the bitrate
+                        - it not, set the missingCout and increment it
+                    finally, if the missingcount is more than the threshold, remove it */
+                    for (let index = allTables.analyze?.pids?.length - 1; index >= 0; index--) {
+                        const analyzePid = allTables.analyze.pids[index];
+                        const jPid = j.pids.find((jItem) => jItem.id === analyzePid.id);
+
+                        if (jPid) {
+                            allTables.analyze.pids[index] = {
+                                ...jPid,
+                                bitrate: convertBitrate(jPid.bitrate),
+                                description: allTables.analyze.pids[index].description
+                            };
+                        } else {
+                            analyzePid.missingCount = (analyzePid.missingCount || 0) + 1;
+                            analyzePid.bitrate = convertBitrate(0);
+                            analyzePid.description = allTables.analyze.pids[index].description;
+                            
+                            if (analyzePid.missingCount > removePidTthreshold) {
+                                // Remove the object from analyze.pids
+                                console.log("Removing PID: " + analyzePid.id)
+                                allTables.analyze.pids.splice(index, 1);
+
+                            }
+                        }
+                    }
+
+                    // Iterate over j.pids array to find and add new objects to analyze.pids
+                   /* j.pids.forEach((jPid) => {
+                        if (!allTables.analyze?.pids?.find((analyzePid) => analyzePid.id === jPid.id)) {
+                            allTables.analyze?.pids?.push({
+                                ...jPid,
+                                bitrate: convertBitrate(jPid.bitrate),
+                                missingCount: 0,
+                            });
+                        }
+                    });*/
+
+                    //Sort the PIDs list 
+                    //allTables.analyze?.pids?.sort((a, b) => a.id - b.id);
+
+                    //Set the services in allTables.analyze
+                    //allTables.analyze.services = j.services;
+                    
+                    break;
+
+                case "ANASLOW":
+                    /* When ANASLOW arrives,i need to keep the bitrate evalauted by the ANALYZEBITRATE. 
+                    for each PID, cehck if it is already in the analyze.table. 
+                    - if YES, set the current pid to the value already set
+                    - if not, set the bitrate to 0. It will be updated by the ANALYZEBITRATE */
+                    j.pids.forEach(jPid => {
+                        //jPid.description = jPid.description;
+                        let allTIndex = allTables.analyze?.pids?.findIndex( x=> x.id === jPid.id );
+                        if(allTIndex !== -1 && allTIndex !== undefined) {
+                            jPid.bitrate = allTables.analyze.pids[allTIndex].bitrate; 
+                            jPid.missingCount = allTables.analyze.pids[allTIndex]?.missingCount;
+                        } else { jPid.bitrate = convertBitrate(0)};
                     })
+                    allTables.analyze = j;
 
-                    allTables.analyze.services = j.services;
+                    //CC Error: in allTables.analyze.pids.packets.discontinuities
+                    allTables.stats.cc = ccError(allTables.analyze.pids);
 
-                }
 
 
+                    break;
+
+                case "SRT":
+                 
+                    /*********************************************
+                    ************ SRT PLUGIN SECTION **************
+                    **********************************************/
+                    try {
+                        //const j = JSON.parse(data.substring(7));
+                        allTables.srt = j
+                    } catch (e) {
+                        console.log("Error in parsing SRT json line");
+                        console.log(data.substring(7));
+                        allTables.srt = {};
+                    }
+                    break;
+
+                /*The nullish ?? coalescing operator checks if allTables.stats.cc is null or undefined and, 
+                if so, uses the default value of 0. Then, it increments the result by 1. */
+                // if (table === "continuity") {
+                //case "continuity":
+               /* case "CONTINUITY":
+                    allTables.stats.cc = (allTables.stats.cc ?? 0) + 1;
+                    break;
+                    */
+                default:
+                    break;
             }
 
-            if (table === "srt") {
-                try {
-                    const j = JSON.parse(data.substring(7));
-                    allTables.srt = j
-                } catch (e) {
-                    console.log("Error in parsing SRT json line");
-                    console.log(data.substring(7));
-                    allTables.srt = {};
-                }
-
-            }
-
-            /*The nullish ?? coalescing operator checks if allTables.stats.cc is null or undefined and, 
-            if so, uses the default value of 0. Then, it increments the result by 1. */
-            if (table === "continuity") {
-                allTables.stats.cc = (allTables.stats.cc ?? 0) + 1;
-            }
-
-
+            sendEventsToAll('allTables', allTables);
+            
         });
 
         resolve(tspcommand)
@@ -445,9 +433,10 @@ async function probeStart(config, tspcommand) {
     });
 
 }
+/* END PROBE START */
 
 
-//const probeStop = function probeStop(tspcommand) {
+/* PROBE STOP */
 function probeStop(tspcommand) {
 
     // I need to delay the clear table when the probe is stopped as the there is still soemting to send
@@ -515,10 +504,10 @@ function probeStop(tspcommand) {
     });
 
 }
+/* END PROBE STOP */
 
 
-
-// FFMPEG IFRAME
+/* FFMPEG FRAME GENERATION */
 
 async function ffmpegIframe() {
 
@@ -558,7 +547,7 @@ async function ffmpegIframe() {
 
     })
 }
-
+/* END FFMPEG FRAME GENERATION */
 
 
 

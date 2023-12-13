@@ -1,22 +1,26 @@
+const path=require('path');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  sassOptions:{
+    includePaths:[path.join(__dirname,'style')],
+  },
   basePath: '/nextviewer',
   output: 'export',
   
-//     async rewrites() {
+    //  async rewrites() {
  
-//       return [
-//         {
-//           source: '/nextviewer/:path*',
-//           destination: 'http://localhost:8081/:path*/',
-//         },
-//         {
-//           source: '/:path*',
-//           destination: 'http://localhost:8081/nextviewer/:path*/',
-//         },
-//       ]
+    //   return [
+    //     {
+    //       source: '/nextviewer/:path*',
+    //       destination: 'http://localhost:8081/:path*/',
+    //     },
+    //     {
+    //       source: '/:path*',
+    //       destination: 'http://localhost:8081/nextviewer/:path*/',
+    //     },
+    //   ]
     
-//     },
+    // },
 
  }
 

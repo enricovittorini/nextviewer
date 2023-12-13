@@ -92,6 +92,7 @@ function getPidProperties(pids, x, elcomp) {
     const component = {}
     const pid = pids.find(k => k.id === x);
 
+
     // Do not include PMT, ECM and  EMM in the component list
     if (!pid.pmt && !pid.ecm && !pid.emm) {
         let [icon, scrambledIcon, description, descriptionDetails] = getPidType(pid);
@@ -117,7 +118,7 @@ function getServicelist(sdt, analyze) {
 
     const list = [];
     const pids = analyze?.pids;
-    const services = analyze?.services.filter(k => k.bitrate !== 0);
+    const services = analyze?.services?.filter(k => k.bitrate !== 0);
 
     // check that SDT tables has elements if not exit
 
@@ -139,6 +140,7 @@ function getServicelist(sdt, analyze) {
 
         //
         el.scrambled_icon = k["is-scrambled"] ? "bi bi-key" : null;
+        el.lcn = k.lcn || null;
         //Now get the info on the components:
         const servicePids = getServiceProp(k, el);
         servicePids && servicePids.forEach(x => {

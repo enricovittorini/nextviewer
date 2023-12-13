@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'
 import ProbeConfig from './probeconfig';
 import SpinnerConnection from './spinnerConnection';
-import convertBitrate from './utils/convertBitrate';
+//import convertBitrate from './utils/convertBitrate';
 
 import Pat from './pat';
 import Cat from './cat';
@@ -36,6 +36,7 @@ export default function Home() {
   const [previewImage, setPreviewImage] = useState(nopreview);
   const [previewPidDescription, setPreviewPidDescription] = useState('');
   const [serviceList, setServiceList] = useState({});
+  const [appversion, setAppVersion] = useState('');
 
 
 
@@ -52,6 +53,10 @@ export default function Home() {
       events.onerror = (e) => {
         console.log("An error occurred while attempting to connect.");
         setConnectionStatus('danger');
+
+        setAllTables({});
+        setPreviewImage(nopreview);
+        setPreviewPidDescription('')
 
       };
 
@@ -99,10 +104,10 @@ export default function Home() {
   let netbitrate = 0;
   let nullbittrate = 0;
 
-  if (allTables && allTables.bitrate && allTables.bitrate.tsbitrate) {
-    tsbitrate = allTables?.bitrate?.tsbitrate;
-    netbitrate = allTables?.bitrate?.netbitrate;
-    nullbittrate = allTables.bitrate?.nullbitrate;
+  if (allTables && allTables.tsbitrate && allTables.tsbitrate.bitrate) {
+    tsbitrate = allTables?.tsbitrate?.bitrate;
+    netbitrate = allTables?.tsbitrate?.net;
+    nullbittrate = allTables.tsbitrate?.stuffing;
 
   }
 
@@ -160,7 +165,7 @@ export default function Home() {
           </div>
         </div>
 
-        <Footer />
+        <Footer data={probeConfig.appversion} />
         <Credits />
       </div>
 

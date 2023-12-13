@@ -2,8 +2,8 @@
 function getPidType(data) {
     let icon = null;
     let tabledPid = [0, 1, 16, 17, 18, 20, 21];
-    let description = data.description.substring(0, data.description.indexOf("(")).trim() || data.description;
-    let descriptionDetails = data.description.substring(data.description.indexOf("("), data.description.length).replace(/[()]/g, '') || description;
+    let description = data.description?.substring(0, data.description?.indexOf("(")).trim() || data.description;
+    let descriptionDetails = data.description?.substring(data.description?.indexOf("("), data.description.length).replace(/[()]/g, '') || description;
 
     if (data.pmt || tabledPid.includes(data.id) || data.id === 0) {
         icon = "bi bi-table";

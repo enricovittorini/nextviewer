@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react';
-import convertBitrate from './utils/convertBitrate';
-import getPesStreamId from './pesStreamId'
+//import convertBitrate from './utils/convertBitrate';
+//import getPesStreamId from './pesStreamId'
 import { getServiceType } from './serviceType';
 import getPidType from './getPidType';
 
@@ -67,16 +67,13 @@ function renderTable(data, analyze, sdt) {
     const servicePids = data.pids;
     var icon = null;
     var scrambledIcon = null;
-    //const name = data["name"];
     const name = serviceName;
+    const lcn = data.lcn && data.lcn;
     const sId = data["id"];
     const pmtPid = data["pmt-pid"];
     const pcrPid = data["pcr-pid"];
-    //const typeId = data["type"];
     const typeId = serviceType;
-    //const provider = data["provider"];
     const provider = providerName
-    //const bitrate = convertBitrate(data["bitrate"]);
     const bitrate = data["bitrate"];
 
     const scrambled = data["is-scrambled"];
@@ -101,6 +98,7 @@ function renderTable(data, analyze, sdt) {
                 <ul>
                     <Component data={{ servicePids, analyze }} />
                     <li key={"sid_" + sId} className='prop'> Program: {sId} </li>
+                    <li key={"sid_" + lcn} className='prop'> LCN: {lcn} </li>
                     <li key={"sid_pcr_" + pcrPid} className='prop'> PCR PID: {pcrPid} </li>
                     <li key={"sid_pmt_" + pmtPid} className='prop'> PMT PID: {pmtPid} </li>
                     <li key={"sid_pmt_" + provider} className='prop'> Provider: {provider} </li>
