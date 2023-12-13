@@ -196,7 +196,7 @@ app.post('/startpreview', async function (req, res) {
     try {
         const sid = req.body;
 
-        const pidDescription = getPidDescription(sid.sid, await getAllTables());
+        const pidDescription =  getPidDescription(sid.sid, await getAllTables());
         pidDescription.then((description) => {
             console.log(description)
             config.description = description;
@@ -244,7 +244,9 @@ app.post('/startpreview', async function (req, res) {
 
                     if (previewcommand) {
                         config.previewSid = sid.sid;
+                        
                         sendEventsToAll('config', config);
+                        sendEventsToAll('description', config.description);
                         res.json(config);
                     }
 

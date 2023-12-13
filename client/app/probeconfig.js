@@ -233,7 +233,7 @@ function ProbeConfig({ data }) {
                             <div className='col-12 col-md-12 col-lg-4'>
                                 <div className='row'>
                                     <div className='col'>
-                                        <label htmlFor="type" className="form-label">Type</label>
+                                        <label htmlFor="type" className="form-label" >Type</label>
                                         <select className="form-select form-select-sm" name="type" value={probeType} onChange={e => setProbeType(e.target.value)}>
                                             <option value="ip">IP</option>
                                             <option value="dtu245">DTU-245</option>
