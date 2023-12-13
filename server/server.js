@@ -67,23 +67,25 @@ config.appversion = process.env.npm_package_version;
 
 /* DEKTEC DEVICE */
 //0: DTU-245 (DTU-245 FantASI USB-2 ASI/SDI Input+Output)
-const tspdek = spawn('tsdektec', ['-a']);
+if (process.platform === "win32") {
+    const tspdek = spawn('tsdektec', ['-a']);
 
-const stout = readline.createInterface({
-    input: tspdek.stdout,
-    output: tspdek.stdout
-});
-stout.on('line', (data) => {
+    const stout = readline.createInterface({
+        input: tspdek.stdout,
+        output: tspdek.stdout
+    });
+    stout.on('line', (data) => {
 
-    //console.log(data)
-    const line = data.split(":");
-    const deviceIndex = parseInt(line[0]);
-    //console.log(deviceIndex)
-    const deviceType = line[1].substr(0, line[1].indexOf("(")).trim();
-    //console.log(deviceType)
-    config.dektec[`${deviceType}`].deviceIndex.push(deviceIndex);
-    //console.log(config)
-})
+        //console.log(data)
+        const line = data.split(":");
+        const deviceIndex = parseInt(line[0]);
+        //console.log(deviceIndex)
+        const deviceType = line[1].substr(0, line[1].indexOf("(")).trim();
+        //console.log(deviceType)
+        config.dektec[`${deviceType}`].deviceIndex.push(deviceIndex);
+        //console.log(config)
+    })
+}
 /* END DEKTEC DEVICE */
 
 /* SSE EVENTS */
@@ -308,7 +310,7 @@ app.post('/resetcc', async function (req, res) {
                     if (code === 0) {
                         tables.stats.cc = 0;
                         sendEventsToAll(tables);
-                        
+
                     }
                     resetcc = null;
                 })
