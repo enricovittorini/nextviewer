@@ -128,17 +128,13 @@ async function probeStart(config, tspcommand) {
 
         ster.on('line', async (data) => {
 
-            //const table = data.substring(2, data.indexOf(":"));
-
-            //const table = data.substring(1, data.indexOf(":")).trim()
             const table = data.substring(data.indexOf(":") + 1, data.indexOf("{")).trim()
             let j;
             //console.log(table)
             try {
                 j = JSON.parse(data.substring(data.indexOf("{")));
             } catch (e) {
-                // console.log("not a json line")
-                //console.log(data)
+                 console.log("Not a json line")
             }
 
             switch (table) {
@@ -148,12 +144,12 @@ async function probeStart(config, tspcommand) {
                     *************** BITRATE PLUGIN  **************
                     **********************************************/
                     // { "bitrate": 24882317, "net": 23917618, "status": "normal", "stuffing": 964699, "time": "2023/12/12 06:33:34", "type": "ts" }
-
+                    allTables.tsbitrate.time = j.time;
                     allTables.tsbitrate.bitrate = convertBitrate(j.bitrate || 0);
                     allTables.tsbitrate.net = convertBitrate(j.net || 0);
                     allTables.tsbitrate.stuffing = convertBitrate(j.stuffing || 0);
 
-                    console.log("TS bitrate: " + allTables.tsbitrate.bitrate + " - Net bitrate: " + allTables.tsbitrate.net + " - Stuffing: " + allTables.tsbitrate.stuffing)
+                    console.log("Date: " + allTables.tsbitrate.time + " - TS bitrate: " + allTables.tsbitrate.bitrate + " - Net bitrate: " + allTables.tsbitrate.net + " - Stuffing: " + allTables.tsbitrate.stuffing)
 
                     if (j.bitrate === 0) {
 
