@@ -296,7 +296,7 @@ app.post('/stoppreview', async function (req, res) {
 
 
 
-
+//POST Reset CC Counter
 app.post('/resetcc', async function (req, res) {
     try {
         const tables = await getAllTables();
