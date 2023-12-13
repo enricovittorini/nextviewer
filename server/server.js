@@ -19,6 +19,7 @@ const nopreview = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAgAAAQABAAD//gAQTGF2Yz
 const ipv4Addresses = getInterfacesList();
 let tspcommand = null;
 let previewcommand = null;
+let resetcc = null;
 
 //Probe configuration parameters
 let config = {
@@ -300,19 +301,18 @@ app.post('/resetcc', async function (req, res) {
     try {
         const tables = await getAllTables();
         if (tables && tables.stats) {
+            if (!resetcc) {
+                resetcc = spawn('tspcontrol', ['-t', 'localhost:3001', 'restart', '-s', '4']);
 
-
-            const resetcc = spawn('tspcontrol', ['-t', 'localhost:3001', 'restart', '-s', '4']);
-
-
-            resetcc.on('exit', async (code) => {
-                if (code === 0) {
-                    tables.stats.cc = 0;
-                    sendEventsToAll(tables);
-                }
-            })
-
-
+                resetcc.on('exit', async (code) => {
+                    if (code === 0) {
+                        tables.stats.cc = 0;
+                        sendEventsToAll(tables);
+                        
+                    }
+                    resetcc = null;
+                })
+            }
 
         }
         res.status(200).end();
