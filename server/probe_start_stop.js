@@ -6,11 +6,10 @@ const srtVesion = require('./getSrtVersion');
 const getServicelist = require('./servicelist');
 const convertBitrate = require('./convertBitrate');
 const ccError = require('./utils/ccError')
-const getPidDescription = require('./getPidDescription')
+//const getPidDescription = require('./getPidDescription')
 
 const probeCtrlPort = 3001; // Probe process control port
-let allTables = { "pat": {}, "cat": {}, "pmt": [], "sdt": {}, "sdtOther": [], "bat": {}, "nit": {}, "analyze": {}, "servicelist": {}, "tsbitrate": {}, "srt": {}, "stats": {}, "info": {} };
-//const lateTablesPid = [16, 17, 18, 20, 21]; //There are tables with potentially high repetitionrate. Use "analyze" with high interval
+const allTables = { "pat": {}, "cat": {}, "pmt": [], "sdt": {}, "sdtOther": [], "bat": {}, "nit": {}, "analyze": {}, "servicelist": {}, "tsbitrate": {}, "srt": {}, "stats": {}, "info": {} };
 const removePidTthreshold = 20; // is PID is missing more than 10 cycles of evalauiton (10s). remove it
 
 
@@ -394,6 +393,8 @@ async function probeStart(config, tspcommand) {
                         } else { jPid.bitrate = convertBitrate(0)};
                     })
                     allTables.analyze = j;
+
+                    //CC Error: in allTables.analyze.pids.packets.discontinuities
                     allTables.stats.cc = ccError(allTables.analyze.pids);
 
 
