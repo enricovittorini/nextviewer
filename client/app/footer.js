@@ -9,7 +9,7 @@ function Footer({data}) {
                 </a>
                 <span className="mb-3 mb-md-0">© Enrico Vittorini</span>
             </div>
-            <div className="col-sm-1 text-white-50"> version {data}</div>
+            <div className="col-sm-1 text-white-50"> version 2.0</div>
            
             <p className="nav col-md-4 justify-content-end text-white-50" data-bs-toggle="modal" data-bs-target="#credits">Credits</p>
       
