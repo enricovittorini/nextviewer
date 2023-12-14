@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation'
+//import { useRouter } from 'next/navigation'
 import ProbeConfig from './probeconfig';
 import SpinnerConnection from './spinnerConnection';
 //import convertBitrate from './utils/convertBitrate';
@@ -16,7 +16,7 @@ import PidsList from './pids';
 import SrtStats from './srtstats';
 import Footer from './footer';
 import Credits from './credits';
-import ServiceList from './servicelist';
+//import ServiceList from './servicelist';
 import NewServiceList from './newservicelist';
 import CcBadge from './badge';
 import SrtStatsListener from './srtstatsListener';
@@ -35,11 +35,8 @@ export default function Home() {
   const [connectionStatus, setConnectionStatus] = useState('primary');
   const [previewImage, setPreviewImage] = useState(nopreview);
   const [previewPidDescription, setPreviewPidDescription] = useState('');
-  const [serviceList, setServiceList] = useState({});
-  const [appversion, setAppVersion] = useState('');
-
-
-
+  //const [serviceList, setServiceList] = useState({});
+  //const [appversion, setAppVersion] = useState('');
 
   useEffect(() => {
     require("bootstrap/dist/js/bootstrap.bundle.min.js");
@@ -53,7 +50,6 @@ export default function Home() {
       events.onerror = (e) => {
         console.log("An error occurred while attempting to connect.");
         setConnectionStatus('danger');
-
         setAllTables({});
         setPreviewImage(nopreview);
         setPreviewPidDescription('')
@@ -72,15 +68,15 @@ export default function Home() {
         setAllTables(parsedData)
       })
 
-      events.addEventListener('servicelist', (event) => {
-        const parsedData = JSON.parse(event.data);
-        //console.log(parsedData)
-      })
+      /* events.addEventListener('servicelist', (event) => {
+         const parsedData = JSON.parse(event.data);
+         //console.log(parsedData)
+       })*/
 
 
       events.addEventListener('config', (event) => {
         const parsedData = JSON.parse(event.data);
-        setProbeConfig((parsedData))
+        setProbeConfig(parsedData)
       })
 
 
@@ -95,10 +91,15 @@ export default function Home() {
       })
 
       setListening(true);
+      // Cleanup the EventSource connection on component unmount
+      return () => {
+        events.close();
+      };
     }
 
 
-  }, [allTables, probeConfig, previewImage]);
+    // }, [allTables, probeConfig, previewImage]);
+  }, []);
 
   let tsbitrate = 0;
   let netbitrate = 0;
@@ -132,7 +133,7 @@ export default function Home() {
           <div className='row'>
             <h6>PSI-SI</h6>
             <Pat data={allTables} />
-             <Cat data={allTables} />
+            <Cat data={allTables} />
             <Pmt data={allTables} />
             <Nit data={allTables} />
             <Sdt data={allTables} />
@@ -140,23 +141,23 @@ export default function Home() {
             <Bat data={allTables} />
           </div>
         </div>
-         <div className='col-md-6 col-lg-5'>
+        <div className='col-md-6 col-lg-5'>
           <div className='row'>
             <h6>Service List</h6>
-             {/*<ServiceList data={allTables} /> */}
-             <NewServiceList list={allTables.servicelist}/>
+            {/*<ServiceList data={allTables} /> */}
+            <NewServiceList list={allTables.servicelist} />
           </div>
           <hr />
           <div className='row'>
             <h6>PIDs</h6>
-            <PidsList data={allTables} />
+             <PidsList data={allTables} />
           </div>
         </div>
-        
+
 
         <div className='col-md-12 col-lg-3'>
           <div className='row'>
-          <Preview services={allTables.servicelist} previewId={probeConfig.previewSid} image={previewImage} pids={allTables.pids} desc={previewPidDescription} />
+            <Preview services={allTables.servicelist} previewId={probeConfig.previewSid} image={previewImage} desc={previewPidDescription} />
           </div>
           <hr />
           <div className='row'>

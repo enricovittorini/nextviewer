@@ -201,7 +201,7 @@ app.post('/startpreview', async function (req, res) {
 
         const pidDescription = getPidDescription(sid.sid, await getAllTables());
         pidDescription.then((description) => {
-            console.log(description)
+            //console.log(description)
             config.description = description;
 
 
@@ -309,8 +309,7 @@ app.post('/resetcc', async function (req, res) {
                 resetcc.on('exit', async (code) => {
                     if (code === 0) {
                         tables.stats.cc = 0;
-                        sendEventsToAll(tables);
-
+                        //sendEventsToAll(tables);
                     }
                     resetcc = null;
                 })

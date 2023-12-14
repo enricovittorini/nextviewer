@@ -334,18 +334,20 @@ async function probeStart(config, tspcommand) {
                     finally, if the missingcount is more than the threshold, remove it */
                     for (let index = allTables.analyze?.pids?.length - 1; index >= 0; index--) {
                         const analyzePid = allTables.analyze.pids[index];
+                        
                         const jPid = j.pids.find((jItem) => jItem.id === analyzePid.id);
 
                         if (jPid) {
-                            allTables.analyze.pids[index] = {
+                            const updatedPid  = {
                                 ...jPid,
                                 bitrate: convertBitrate(jPid.bitrate),
-                                description: allTables.analyze.pids[index].description
+                                description: analyzePid.description
                             };
+                            allTables.analyze.pids[index] = updatedPid;
                         } else {
                             analyzePid.missingCount = (analyzePid.missingCount || 0) + 1;
                             analyzePid.bitrate = convertBitrate(0);
-                            analyzePid.description = allTables.analyze.pids[index].description;
+                            analyzePid.description = analyzePid.description;
                             
                             if (analyzePid.missingCount > removePidTthreshold) {
                                 // Remove the object from analyze.pids
@@ -355,6 +357,8 @@ async function probeStart(config, tspcommand) {
                             }
                         }
                     }
+
+                   
 
                     // Iterate over j.pids array to find and add new objects to analyze.pids
                    /* j.pids.forEach((jPid) => {
@@ -384,16 +388,15 @@ async function probeStart(config, tspcommand) {
                         //jPid.description = jPid.description;
                         let allTIndex = allTables.analyze?.pids?.findIndex( x=> x.id === jPid.id );
                         if(allTIndex !== -1 && allTIndex !== undefined) {
-                            jPid.bitrate = allTables.analyze.pids[allTIndex].bitrate; 
-                            jPid.missingCount = allTables.analyze.pids[allTIndex]?.missingCount;
+                            const analyzePid = allTables.analyze.pids[allTIndex]
+                            jPid.bitrate = analyzePid.bitrate; 
+                            jPid.missingCount = analyzePid.missingCount;
                         } else { jPid.bitrate = convertBitrate(0)};
                     })
                     allTables.analyze = j;
 
                     //CC Error: in allTables.analyze.pids.packets.discontinuities
                     allTables.stats.cc = ccError(allTables.analyze.pids);
-
-
 
                     break;
 
