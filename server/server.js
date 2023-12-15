@@ -172,8 +172,9 @@ app.post('/stop', async function (req, res) {
             await previewcommand.kill();
             previewcommand = null;
             config.previewSid = 0;
+            config.description = "";
             sendEventsToAll('previewImage', nopreview);
-            sendEventsToAll('description', " ");
+            //sendEventsToAll('description', " ");
         }
 
         config.status = "stopped";
@@ -186,6 +187,7 @@ app.post('/stop', async function (req, res) {
         tspcommand = null;
         previewcommand = null;
         config.status = "stopped";
+        config.description = "";
         console.log(e)
     }
 
@@ -283,7 +285,7 @@ app.post('/stoppreview', async function (req, res) {
             config.description = "";
             sendEventsToAll('config', config);
             sendEventsToAll('previewImage', nopreview);
-            sendEventsToAll('description', " ");
+            //sendEventsToAll('description', " ");
             res.json(config);
 
         });

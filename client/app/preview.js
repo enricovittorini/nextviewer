@@ -103,7 +103,7 @@ function Preview({ /*serviceNames, */services, previewId, image, desc }) {
 
     useEffect(() => {
         //setDescription(desc.replace(/"/g, ''));
-        console.log("Description changed");
+        //console.log("Description changed");
         setDescription(desc);
 
     }, [desc])
