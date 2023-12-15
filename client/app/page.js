@@ -52,7 +52,7 @@ export default function Home() {
         setConnectionStatus('danger');
         setAllTables({});
         setPreviewImage(nopreview);
-        setPreviewPidDescription('')
+        //setPreviewPidDescription('')
 
       };
 

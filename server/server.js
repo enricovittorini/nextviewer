@@ -63,7 +63,8 @@ app.use(express.static(staticPath));
 
 
 /* Server version */
-config.appversion = process.env.npm_package_version;
+const version = process.env.npm_package_version;
+config.appversion = version;
 
 /* DEKTEC DEVICE */
 //0: DTU-245 (DTU-245 FantASI USB-2 ASI/SDI Input+Output)
@@ -138,6 +139,7 @@ app.route('/config')
         // Access the posted data from the request body
         const formData = req.body;
         config = formData;
+        config.appversion = version;
         // Send a response to the client
         res.json(config);
     })
