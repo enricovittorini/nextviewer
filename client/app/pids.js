@@ -14,27 +14,36 @@ function renderTable(data) {
     }
 
     let scrambledIcon = null;
-    //let bitrate = convertBitrate(data.bitrate);
+    let pcrIcon = null;
     let bitrate = data.bitrate;
 
     if (data["is-scrambled"]) {
         scrambledIcon = "bi bi-lock";
-    } else { scrambledIcon = null }
+    }
+
+    if (data.packets.pcr > 0) {
+        pcrIcon = "bi bi-clock";
+    }
 
 
     let [icon, description, descriptionDetails] = getPidType(data);
 
-        return (
+    return (
 
         <li key={"pid_" + data.id}>
             <details>
-                <summary><i className={icon}></i><i className={scrambledIcon}></i> {data.id} {description} - {bitrate}</summary>
+                <summary>
+                    <i className={icon}></i>
+                    {pcrIcon !== null && (
+                        <i className={`${pcrIcon} ms-1`} style={{ fontSize: '0.8rem' }}></i>
+                    )}
+                    <i className={scrambledIcon}></i> {data.id} {description} - {bitrate}</summary>
                 <ul>
                     <li className='prop'>{descriptionDetails}</li>
+
                 </ul>
             </details>
         </li>
-
 
     )
 
@@ -48,7 +57,7 @@ function PidsList({ data }) {
 
 
     useEffect(() => {
-        setTable(data.analyze); 
+        setTable(data.analyze);
     }, [data.analyze]);
 
     if (analyze && analyze.pids) {

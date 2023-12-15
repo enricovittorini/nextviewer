@@ -4,13 +4,17 @@ import { useState, useEffect } from 'react';
 
 
 function Component(data) {
+    let pcrIcon = null;
+    if(data.pcr){
+        pcrIcon = pcrIcon = "bi bi-clock ms-1";
+    }
 
     return (
 
         <li key={data.id}>
             <details>
                 <summary>
-                    <i className={data.icon}></i><i className={data.icon_scrambled}></i> {data.id} - {data.description} {data.bitrate}
+                    <i className={data.icon}></i><i className={data.icon_scrambled}><i className={pcrIcon} style={{ fontSize: '0.8rem' }}></i></i> {data.id} - {data.description} {data.bitrate}
                 </summary>
                 <ul>
                     <li className='prop'>

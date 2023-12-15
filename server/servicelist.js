@@ -98,6 +98,7 @@ function getPidProperties(pids, x, elcomp) {
         let [icon, scrambledIcon, description, descriptionDetails] = getPidType(pid);
        
         component.id = x;
+        component.pcr = pid["packets"]?.pcr > 0 ? true : false ;
         component.is_scrambled = pid["is-scrambled"];
         component.bitrate = pid["bitrate"]; // it is already converted when it arrives here
         component.video = pid["video"];

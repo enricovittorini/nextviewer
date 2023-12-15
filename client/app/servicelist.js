@@ -20,13 +20,15 @@ const Component = ({ data }) => {
                 //Check if the component is not a pmt table, an EMM or an ECM component
                 if (!k.pmt && !k.ecm && !k.emm) {
 
-                    //const description = k.description.substring(0, k.description.indexOf("(")).trim() || k["description"];
-                    //const bitrate = convertBitrate(k["bitrate"]);
                     const bitrate = k["bitrate"];
                     const pid = k["id"];
 
-                    //const pesStreamId = getPesStreamId(k["pes-stream-id"]);
                     let [icon, description, descriptionDetails] = getPidType(k);
+                    let pcrIcon = null;
+                    
+                    if (k.pcr) {
+                        pcrIcon = "bi bi-stopwatch";
+                    }
 
                     // Add lock icon if the component is scrmabled
                     var scrambledIcon = null;
@@ -36,7 +38,7 @@ const Component = ({ data }) => {
 
                     return (
                         <li key={"component_" + k.id} className='prop'>
-                            <i className={icon}></i> <i className={scrambledIcon}></i> {pid} - {description} - {bitrate}
+                            <i className={icon}></i><i className={`${pcrIcon} ms-1`} style={{ fontSize: '0.8rem' }}></i><i className={scrambledIcon}></i> {pid} - {description} - {bitrate}
                         </li>
                     )
                 }
