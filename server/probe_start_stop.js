@@ -164,8 +164,11 @@ async function probeStart(config, tspcommand) {
                         reparseTable = false;
                     }
 
-                    //bitrate monitor is the most frequent plugin. Send allTables  only here
+                    
                     allTables.servicelist = getServicelist(allTables.sdt, allTables.analyze);
+
+                    //bitrate monitor is the most frequent plugin. Send allTables  only here
+                    sendEventsToAll('allTables', allTables);
 
                     break;
 
@@ -315,10 +318,10 @@ async function probeStart(config, tspcommand) {
                         }
 
                         // SDT and BAT
-                        const sdtPid = j.pids.find(k => k.id === 17);
+                       /* const sdtPid = j.pids.find(k => k.id === 17);
                         if (allTables && allTables.sdt && allTables.sdt["#nodes"] && allTables.sdt["#nodes"][0]) {
                             allTables.sdt["#nodes"][0]["bitrate"] = convertBitrate(sdtPid ? sdtPid.bitrate : 0);
-                        }
+                        }*/
 
                     }
 
@@ -427,7 +430,7 @@ async function probeStart(config, tspcommand) {
                     break;
             }
 
-            sendEventsToAll('allTables', allTables);
+            
             
         });
 

@@ -1,0 +1,41 @@
+#Start from node stable
+#this is the production nextviewer
+
+FROM node:21.4.0-slim
+
+ENV NODE_ENV=production
+
+# Define a build argument for the file name
+ARG DEB_FILE=tsduck_3.36-3528.debian12_amd64.deb
+
+# Update and install the Debian packages
+RUN apt-get update && \
+    apt-get install -y git libsrt1.5-openssl libssl3 ffmpeg &&\
+    apt clean && \
+    apt autoclean 
+
+# Copy the .deb file from the local directory into the container
+COPY $DEB_FILE /packages/
+
+# Install the .deb package
+RUN dpkg -i /packages/$DEB_FILE
+
+# Clone Reporitory
+RUN git clone --branch dev  https://github.com/enricovittorini/nextviewer.git --depth=1
+
+# Copy the 'tsviewer' folder into /tsviewer/ directory in the container
+WORKDIR /nextviewer/client
+#Build static files
+RUN npm i --omit=dev && npm run build
+
+
+WORKDIR /nextviewer/server/
+# Install Node.js dependencies
+RUN npm i --omit=dev --save
+
+EXPOSE 8081
+
+
+
+
+CMD ["npm", "start", "server.js"]

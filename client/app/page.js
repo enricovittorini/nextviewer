@@ -34,7 +34,7 @@ export default function Home() {
   const [listening, setListening] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('primary');
   const [previewImage, setPreviewImage] = useState(nopreview);
-  const [previewPidDescription, setPreviewPidDescription] = useState('');
+  //const [previewPidDescription, setPreviewPidDescription] = useState('');
   //const [serviceList, setServiceList] = useState({});
   //const [appversion, setAppVersion] = useState('');
 
@@ -85,10 +85,10 @@ export default function Home() {
         setPreviewImage(data);
       })
 
-      events.addEventListener('description', (event) => {
+      /*events.addEventListener('description', (event) => {
         const data = event.data;
         setPreviewPidDescription(data.toString());
-      })
+      })*/
 
       setListening(true);
       // Cleanup the EventSource connection on component unmount
@@ -157,7 +157,7 @@ export default function Home() {
 
         <div className='col-md-12 col-lg-3'>
           <div className='row'>
-            <Preview services={allTables.servicelist} previewId={probeConfig.previewSid} image={previewImage} desc={previewPidDescription} />
+            <Preview services={allTables.servicelist} previewId={probeConfig.previewSid} image={previewImage} desc={probeConfig.description}/*desc={previewPidDescription}*/ />
           </div>
           <hr />
           <div className='row'>

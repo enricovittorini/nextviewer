@@ -224,7 +224,7 @@ app.post('/startpreview', async function (req, res) {
                         config.previewSid = sid.sid;
 
                         sendEventsToAll('config', config);
-                        sendEventsToAll('description', config.description)
+                        //sendEventsToAll('description', config.description)
                         res.json(config);
                     }
                 } else {

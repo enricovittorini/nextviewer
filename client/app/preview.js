@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image'
 
 
@@ -8,6 +8,9 @@ function Preview({ /*serviceNames, */services, previewId, image, desc }) {
     const [previewImage, setPreviewImage] = useState(image);
     const [sid, setSid] = useState(previewId);
     const [description, setDescription] = useState('');
+
+
+
 
     const handleServiceChange = async (event) => {
 
@@ -45,37 +48,63 @@ function Preview({ /*serviceNames, */services, previewId, image, desc }) {
 
     }
 
-    useEffect(() => {
-
-        const servicesObject = {};
+    const servicesObject = useMemo(() => {
+        let x={}
         if (services?.length > 0) {
             for (const s of services) {
-             
+
                 // Exclude the service from the preview list if the video is scrambled
                 let videoComponent = s.components.some(k => { return (k.video === true && k.is_scrambled === false) })
 
                 if (videoComponent) {
-                    servicesObject[s.service_id] = s.service_name
+                    x[s.service_id] = s.service_name
                 }
             }
             
         }
-        setServiceList(servicesObject);
+        return(x)
+    }, [services]);
 
-        //Neet to change the 
-        previewId === null ? setSid(0) : setSid(previewId);
-
-    }, [services, previewId])
-
-
+    /*   useEffect(() => {
+           console.log("Service changed")
+   
+           const servicesObject = {};
+           if (services?.length > 0) {
+               for (const s of services) {
+   
+                   // Exclude the service from the preview list if the video is scrambled
+                   let videoComponent = s.components.some(k => { return (k.video === true && k.is_scrambled === false) })
+   
+                   if (videoComponent) {
+                       servicesObject[s.service_id] = s.service_name
+                   }
+               }
+   
+           }
+           setServiceList(servicesObject);
+   
+           //Need to change the 
+           //previewId === null ? setSid(0) : setSid(previewId);
+   
+           // }, [services, previewId])
+       }, [services])*/
 
     useEffect(() => {
+        //console.log("PreviewId changed");
+        setServiceList(servicesObject);
+        previewId === null ? setSid(0) : setSid(previewId);
+    }, [servicesObject, previewId])
+
+    useEffect(() => {
+        //console.log("Image changed");
         setPreviewImage(image);
     }, [image])
 
 
     useEffect(() => {
-        setDescription(desc.replace(/"/g, ''));
+        //setDescription(desc.replace(/"/g, ''));
+        console.log("Description changed");
+        setDescription(desc);
 
     }, [desc])
 
@@ -111,9 +140,9 @@ function Preview({ /*serviceNames, */services, previewId, image, desc }) {
 
             <div className='row'>
                 <div className='col-12'>
-                   
+
                     <p>{description}</p>
-                
+
                 </div>
             </div>
 
