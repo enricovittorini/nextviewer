@@ -1,5 +1,13 @@
+import { useEffect, useState } from "react";
 
 function Footer({data}) {
+
+    const [version, setVersion] = useState(data);
+
+    useEffect(() => {
+        setVersion(data)
+
+    },[])
 
     return (
         <footer className="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
@@ -9,7 +17,7 @@ function Footer({data}) {
                 </a>
                 <span className="mb-3 mb-md-0">© Enrico Vittorini</span>
             </div>
-            <div className="col-sm-1 text-white-50"> version {data}</div>
+            <div className="col-sm-1 text-white-50"> version {version}</div>
            
             <p className="nav col-md-4 justify-content-end text-white-50" data-bs-toggle="modal" data-bs-target="#credits">Credits</p>
       

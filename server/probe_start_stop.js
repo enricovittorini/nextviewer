@@ -318,10 +318,13 @@ async function probeStart(config, tspcommand) {
                         }
 
                         // SDT and BAT
-                       /* const sdtPid = j.pids.find(k => k.id === 17);
+                        const sdtPid = j.pids.find(k => k.id === 17);
                         if (allTables && allTables.sdt && allTables.sdt["#nodes"] && allTables.sdt["#nodes"][0]) {
                             allTables.sdt["#nodes"][0]["bitrate"] = convertBitrate(sdtPid ? sdtPid.bitrate : 0);
-                        }*/
+                        }
+                        if (allTables && allTables.bat && allTables.bat["#nodes"] && allTables.bat["#nodes"][0]) {
+                            allTables.bat["#nodes"][0]["bitrate"] = convertBitrate(sdtPid ? sdtPid.bitrate : 0);
+                        }
 
                     }
 

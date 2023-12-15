@@ -10,7 +10,7 @@ ARG DEB_FILE=tsduck_3.36-3528.debian12_amd64.deb
 
 # Update and install the Debian packages
 RUN apt-get update && \
-    apt-get install -y git libsrt1.5-openssl libssl3 ffmpeg &&\
+    apt-get install -y git libsrt1.5-openssl libssl3 libpcsclite1 libcurl4 ffmpeg  &&\
     apt clean && \
     apt autoclean 
 
