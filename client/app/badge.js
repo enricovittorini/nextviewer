@@ -8,15 +8,15 @@ const handleCCreset = async () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // Add any other headers as needed
+                
             },
             // Add your request body if required
             // body: JSON.stringify({ key: 'value' }),
         });
 
-        // Handle the response as needed
+        // Handle the response
         const data = await response.json();
-        //console.log(data);
+;
     } catch (error) {
         console.error('Error:', error);
     }

@@ -1,7 +1,6 @@
 
 'use client'
 import { useState, useEffect } from 'react';
-//import convertBitrate from './utils/convertBitrate';
 import getPidType from './getPidType';
 
 
@@ -81,23 +80,8 @@ function PidsList({ data }) {
             </ul>
 
         )
-    } else {
-        /* return (
- 
-             <ul className="tree">
-                 <li>
-                     <details>
-                         <summary>PIDs </summary>
-                     </details>
-                 </li>
- 
-             </ul>
-         )*/
-    }
+    } 
 }
-
-
-
 
 
 

@@ -1,157 +1,92 @@
 'use client'
 import { useState, useEffect } from 'react';
-//import convertBitrate from './utils/convertBitrate';
-//import getPesStreamId from './pesStreamId'
-import { getServiceType } from './serviceType';
-import getPidType from './getPidType';
 
 
 
-const Component = ({ data }) => {
-    const { servicePids, analyze } = data;
-
-    const idSet = new Set(servicePids);
-    const filteredPids = analyze.pids.filter(obj => idSet.has(obj.id));
-
-
-    return (
-        <>
-            {filteredPids.map(k => {
-                //Check if the component is not a pmt table, an EMM or an ECM component
-                if (!k.pmt && !k.ecm && !k.emm) {
-
-                    const bitrate = k["bitrate"];
-                    const pid = k["id"];
-
-                    let [icon, description, descriptionDetails] = getPidType(k);
-                    let pcrIcon = null;
-                    
-                    if (k.pcr) {
-                        pcrIcon = "bi bi-stopwatch";
-                    }
-
-                    // Add lock icon if the component is scrmabled
-                    var scrambledIcon = null;
-                    if (k["is-scrambled"]) {
-                        scrambledIcon = "bi bi-lock";
-                    } else { scrambledIcon = null }
-
-                    return (
-                        <li key={"component_" + k.id} className='prop'>
-                            <i className={icon}></i><i className={`${pcrIcon} ms-1`} style={{ fontSize: '0.8rem' }}></i><i className={scrambledIcon}></i> {pid} - {description} - {bitrate}
-                        </li>
-                    )
-                }
-
-                return null; // If the component does not meet the condition, return null
-            })
-
-            }
-        </>
-
-    )
-}
-
-
-function renderTable(data, analyze, sdt) {
-
-    //Do not list services that have packets at 0.
-    if (!data || data.packets === 0) {
-        return null;
+function Component(data) {
+    let pcrIcon = null;
+    if(data.pcr){
+        pcrIcon = pcrIcon = "bi bi-clock ms-1";
     }
-
-    const serviceId = sdt['#nodes'].find(node => node['#name'] === 'service' && node.service_id === data["id"]);
-    const service = serviceId ? serviceId['#nodes'].find(node => node['#name'] === 'service_descriptor') : null;
-    const serviceName = service?.service_name;
-    const providerName =  service?.service_provider_name;
-    const serviceType = service?.service_type;
-
-    const servicePids = data.pids;
-    var icon = null;
-    var scrambledIcon = null;
-    const name = serviceName;
-    const lcn = data.lcn && data.lcn;
-    const sId = data["id"];
-    const pmtPid = data["pmt-pid"];
-    const pcrPid = data["pcr-pid"];
-    const typeId = serviceType;
-    const provider = providerName
-    const bitrate = data["bitrate"];
-
-    const scrambled = data["is-scrambled"];
-
-    if (scrambled) {
-        scrambledIcon = "bi bi-lock";
-    } else {
-        scrambledIcon = null
-    }
-
-
-    icon = getServiceType(typeId);
 
     return (
 
-        <li key={"sid_" + sId}>
+        <li key={data.id}>
             <details>
                 <summary>
-                    <i className={icon}></i>
-                    <i className={scrambledIcon}></i> {sId} {name} - {bitrate}
+                    <i className={data.icon}></i><i className={data.icon_scrambled}><i className={pcrIcon} style={{ fontSize: '0.8rem' }}></i></i> {data.id} - {data.description} {data.bitrate}
                 </summary>
                 <ul>
-                    <Component data={{ servicePids, analyze }} />
-                    <li key={"sid_" + sId} className='prop'> Program: {sId} </li>
-                    <li key={"sid_" + lcn} className='prop'> LCN: {lcn} </li>
-                    <li key={"sid_pcr_" + pcrPid} className='prop'> PCR PID: {pcrPid} </li>
-                    <li key={"sid_pmt_" + pmtPid} className='prop'> PMT PID: {pmtPid} </li>
-                    <li key={"sid_pmt_" + provider} className='prop'> Provider: {provider} </li>
+                    <li className='prop'>
+                        {data.descriptionDetails}
+
+                    </li>
                 </ul>
             </details>
         </li>
 
+
+
     )
 }
 
-function ServiceList({ data }) {
 
-    var [analyze, setTable] = useState(data.analyze);
-    const [sdt, setSdt] = useState(data.sdt);
-
+function ServiceList({ list }) {
+    const [serviceList, setServiceList] = useState(list);
 
     useEffect(() => {
-        setTable(data.analyze);
+        setServiceList(list)
 
-    }, [data.analyze]);
+    }, [list])
 
-    useEffect(() => {
-        setSdt(data.sdt);
 
-    }, [data.sdt]);
+    return (
+        (serviceList && serviceList.length > 0) && <ul className="tree">
+            <li>
+                <details>
+                    <summary>
+                        Services ({serviceList ? serviceList.length : null})
+                    </summary>
+                    <ul>
+                        {
+                            serviceList &&
+                            serviceList.map((k) => (
+                                <li key={"sid_" + k.service_id}>
+                                    <details>
+                                        <summary>
+                                            <i className={k.service_icon}></i>
+                                            <i className={`${k.scrambled_icon} ms-1`}></i> {k.service_id} {k.service_name} - {k.bitrate}
+                                        </summary>
 
-    if (analyze && analyze.services) {
+                                        <ul>
 
-        const numServices = analyze.services.length;
+                                            {
+                                                k.components && k.components.map((comp) => {
+                                                    return Component(comp)
+                                                })
+                                            }
 
-        return (
-            <>
-                <ul className="tree">
-                    <li>
-                        <details>
-                            <summary>Services ({numServices})</summary>
-                            <ul>
-                                {
-                                    analyze["services"].map((k, i) => {
-                                        return renderTable(k, analyze, sdt)
-                                    })
-                                }
-                            </ul>
-                        </details>
-                    </li>
-                </ul>
-            </>
+                                            <li key={k.id + "_sid_pcr_" + k.service_pcr_pid} className='prop'> PCR pid: {k.service_pcr_pid} </li>
+                                            <li key={k.id + "_sid_pmt_" + k.service_pmt_pid} className='prop'> PMT pid: {k.service_pmt_pid} </li>
+                                            {k.lcn && (
+                                                <li key={k.id + "_lcn_" + k.lcn} className='prop'> LCN: {k.lcn} </li>
+                                            )}
 
-        )
-    }
+                                            <li key={k.id + "_sid_provider"} className='prop'> Provider: {k.service_provider} </li>
+                                            <li key={k.id + "_sid_description"} className='prop'> Service Type: {k.service_type} - {k.service_description} </li>
+                                        </ul>
+                                    </details>
+                                </li>
+                            ))
+                        }
+                    </ul>
+                </details>
+            </li>
+        </ul>
+    );
+
 
 }
 
-export default ServiceList
+
+export default ServiceList;

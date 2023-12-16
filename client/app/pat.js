@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-//import convertBitrate from './utils/convertBitrate';
 
 
 function Properties({ data }) {
