@@ -140,7 +140,7 @@ export default function Home() {
             <Sdt data={allTables} />
             <SdtOther data={allTables} />
             <Bat data={allTables} />
-            <EitActual data={allTables.eitActual} pids={allTables.analyze.pids} />
+            <EitActual data={allTables.eitActual} pids={allTables.analyze?.pids} />
           </div>
         </div>
         <div className='col-md-6 col-lg-5'>
