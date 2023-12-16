@@ -140,7 +140,7 @@ function getServicelist(sdt, analyze) {
         }
 
         //
-        el.scrambled_icon = k["is-scrambled"] ? "bi bi-key" : null;
+        el.scrambled_icon = k["is-scrambled"] ? "bi bi-lock" : null;
         el.lcn = k.lcn || null;
         //Now get the info on the components:
         const servicePids = getServiceProp(k, el);

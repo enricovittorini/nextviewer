@@ -9,6 +9,7 @@ import Pat from './pat';
 import Cat from './cat';
 import Pmt from './pmt';
 import Nit from './nit'
+import EitActual from './eitActual';
 import Sdt from './sdt';
 import SdtOther from './sdtOther';
 import Bat from './bat';
@@ -91,14 +92,14 @@ export default function Home() {
       })*/
 
       setListening(true);
-      // Cleanup the EventSource connection on component unmount
+       //Cleanup the EventSource connection on component unmount
       return () => {
         events.close();
       };
     }
 
 
-    // }, [allTables, probeConfig, previewImage]);
+
   }, []);
 
   let tsbitrate = 0;
@@ -139,6 +140,7 @@ export default function Home() {
             <Sdt data={allTables} />
             <SdtOther data={allTables} />
             <Bat data={allTables} />
+            <EitActual data={allTables.eitActual} pids={allTables.analyze.pids} />
           </div>
         </div>
         <div className='col-md-6 col-lg-5'>
