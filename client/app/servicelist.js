@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 
 function Component(data) {
     let pcrIcon = null;
-    if(data.pcr){
+    if (data.pcr) {
         pcrIcon = pcrIcon = "bi bi-clock ms-1";
     }
 
@@ -14,7 +14,12 @@ function Component(data) {
         <li key={data.id}>
             <details>
                 <summary>
-                    <i className={data.icon}></i><i className={data.icon_scrambled}><i className={pcrIcon} style={{ fontSize: '0.8rem' }}></i></i> {data.id} - {data.description} {data.bitrate}
+                    <div className='row'>
+                        <div className='col-auto pe-1'><i className={data.icon}></i></div>
+                        {data["is_scrambled"] && ( <div className='col-auto ps-0 pe-0'><i className={data.icon_scrambled }> </i></div>)}
+                        {data["pcr"] && (<div className='col-auto ps-0 pe-1'><i className={pcrIcon} ></i></div>)}
+                        <div className='col-auto ps-0 pe-1'><p className="my-0">{data.id} - {data.description} {data.bitrate}</p></div>
+                    </div>
                 </summary>
                 <ul>
                     <li className='prop'>
@@ -54,8 +59,13 @@ function ServiceList({ list }) {
                                 <li key={"sid_" + k.service_id}>
                                     <details>
                                         <summary>
-                                            <i className={k.service_icon}></i>
-                                            <i className={`${k.scrambled_icon} ms-1`}></i> {k.service_id} {k.service_name} - {k.bitrate}
+                                            <div className='row'>
+                                                <div className='col-auto pe-1'> <i className={k.service_icon}></i></div>
+                                                {k.scrambled && (
+                                                    <div className='col-auto ps-0 pe-1'><i className={k.scrambled_icon}></i></div>
+                                                )}
+                                                <div className='col-auto ps-0'><p className="my-0">{k.service_id} - {k.service_name} - {k.bitrate}</p></div>
+                                            </div>
                                         </summary>
 
                                         <ul>

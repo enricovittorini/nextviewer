@@ -37,7 +37,7 @@ function getServiceProp(service, el) {
     el.bitrate = service?.bitrate ? convertBitrate(service.bitrate) : convertBitrate(0);
     el.service_pcr_pid = service["pcr-pid"] || null;
     el.service_pmt_pid = service["pmt-pid"] || null;
-    el.scrabled = service["is-scrambled"];
+    el.scrambled = service["is-scrambled"];
 
 
     return service.pids;
