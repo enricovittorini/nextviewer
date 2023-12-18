@@ -109,7 +109,7 @@ function EitActual({ data, pids }) {
                                     <ul>
 
                                         {
-                                          data.eitpf &&  data.eitpf?.map(k => (
+                                          data?.eitpf &&  data.eitpf?.map(k => (
                                                 <li key={"eit_actual_" + k?.properties.service_id}>
                                                     <details>
                                                         <summary> Service {k?.properties.service_id}</summary>

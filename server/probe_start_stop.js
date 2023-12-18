@@ -7,18 +7,19 @@ const getServicelist = require('./servicelist');
 const convertBitrate = require('./convertBitrate');
 const ccError = require('./utils/ccError');
 const createEIT = require('./utils/createEIT');
+const { setMaxIdleHTTPParsers } = require('http');
 //const getPidDescription = require('./getPidDescription')
 
 const probeCtrlPort = 3001; // Probe process control port
-const allTables = { "pat": {}, "cat": {}, "pmt": [], "sdt": {}, "sdtOther": [], "bat": {}, "nit": {}, "eitActual": { "eitpf": [], "eitsched": [] }, "analyze": {}, "servicelist": {}, "tsbitrate": {}, "srt": {}, "stats": {}, "info": {} };
-const removePidTthreshold = 20; // is PID is missing more than 10 cycles of evalauiton (10s). remove it
+const allTables = { "pat": {}, "cat": {}, "pmt": [], "sdt": {}, "sdtOther": [], "bat": {}, "nit": {}, "eitActual": { "eitpf": [], "eitsched": [] }, "analyze": {}, "servicelist": [], "bitrate": {}, "tsbitrate": {}, "srt": {}, "stats": {}, "info": {} };
+const removePidTthreshold = 30; // is PID is missing more than 10 cycles of evalauiton (10s). remove it
 
 
 const generalCommand = [
     '-P', 'bitrate_monitor', '-p', '1', '-t', '1', '--json-line=BITRATE',
     '-P', 'tables', '--log-json-line=TABLES', '--psi-si', '--pid', '18', '--pid', '20', '--invalid-versions', '--default-pds', '0x00000028',
     '-P', 'analyze', '--unreferenced-pid-list', '-i', '1', '--json-line=ANABITRATE',
-    '-P', 'analyze', '--unreferenced-pid-list', '-c', '-i', '5', '--json-line=ANASLOW',
+    '-P', 'analyze', '--unreferenced-pid-list', '-i', '5', '--json-line=ANASLOW',
     // '-P', 'continuity','--json-line=CONTINUITY'
 ];
 
@@ -166,7 +167,7 @@ async function probeStart(config, tspcommand) {
                     }
 
 
-                    allTables.servicelist = getServicelist(allTables.sdt, allTables.analyze);
+                    //
 
                     //bitrate monitor is the most frequent plugin. Send allTables  only here
                     sendEventsToAll('allTables', allTables);
@@ -337,7 +338,7 @@ async function probeStart(config, tspcommand) {
 
                     if (allTables?.analyze?.pids) {
                         // PAT
-                        setBitrateTables(allTables.pat, TablePid.PAT);
+                        // setBitrateTables(allTables.pat, TablePid.PAT);
 
                         // CAT
                         setBitrateTables(allTables.cat, TablePid.CAT);
@@ -364,16 +365,35 @@ async function probeStart(config, tspcommand) {
 
                     }
 
+                    // it allTables.analyze is not populated, do not do anything.
+                    // ANASLOW will populate it soon
                     if (!allTables.analyze.pids) {
                         break;
-                        //allTables.analyze.pids = j.pids;
                     }
 
+                    // Set bitrate for servicelist
+
+                    allTables.servicelist.forEach((k, index) => {
+
+                        const service = j.services.find(jSid => jSid.id === k.service_id);
+                        if (service) {
+                            allTables.servicelist[index].bitrate = convertBitrate(service.bitrate);
+                        } else {
+                            allTables.servicelist[index].bitrate = convertBitrate(0)
+                        }
+
+                    })
+
+
+
+
                     // Iterate over analyze.pids array in reverse order
-                    /* If check if the PID in analyze.pid is present in j.pids
-                        - if yes, replace the element in analyze.pids with j.pids and updated the bitrate
+                    /* Check if the PID in analyze.pid is present in the jsut received j.pids
+                        - if yes, replace the element in analyze.pids with element in j.pids and updated the bitrate
                         - it not, set the missingCout and increment it
                     finally, if the missingcount is more than the threshold, remove it */
+
+
                     for (let index = allTables.analyze?.pids?.length - 1; index >= 0; index--) {
                         const analyzePid = allTables.analyze.pids[index];
 
@@ -383,13 +403,14 @@ async function probeStart(config, tspcommand) {
                             const updatedPid = {
                                 ...jPid,
                                 bitrate: convertBitrate(jPid.bitrate),
-                                description: analyzePid.description
+                                //description: analyzePid.description
                             };
-                            allTables.analyze.pids[index] = updatedPid;
+                            //replace the pid in analyze.pid with the new one from jPid
+                            allTables.analyze.pids[index] = { ...updatedPid }
                         } else {
+
                             analyzePid.missingCount = (analyzePid.missingCount || 0) + 1;
                             analyzePid.bitrate = convertBitrate(0);
-                            analyzePid.description = analyzePid.description;
 
                             if (analyzePid.missingCount > removePidTthreshold) {
                                 // Remove the object from analyze.pids
@@ -401,20 +422,23 @@ async function probeStart(config, tspcommand) {
                     }
 
 
-
                     // Iterate over j.pids array to find and add new objects to analyze.pids
-                    /* j.pids.forEach((jPid) => {
-                         if (!allTables.analyze?.pids?.find((analyzePid) => analyzePid.id === jPid.id)) {
-                             allTables.analyze?.pids?.push({
-                                 ...jPid,
-                                 bitrate: convertBitrate(jPid.bitrate),
-                                 missingCount: 0,
-                             });
-                         }
-                     });*/
+                    let newPidCheck = false;
+                    j.pids.forEach((jPid) => {
+                        if (!allTables.analyze?.pids?.find((analyzePid) => analyzePid.id === jPid.id)) {
+                            newPidCheck = true;
+                            allTables.analyze?.pids?.push({
+                                ...jPid,
+                                bitrate: convertBitrate(jPid.bitrate),
+                                //missingCount: 0,
+                            });
+                        }
+                    });
 
-                    //Sort the PIDs list 
-                    //allTables.analyze?.pids?.sort((a, b) => a.id - b.id);
+                    //Sort the PIDs list if a new PID has been added
+                    if (newPidCheck) {
+                        allTables.analyze?.pids?.sort((a, b) => a.id - b.id);
+                    }
 
                     //Set the services in allTables.analyze
                     //allTables.analyze.services = j.services;
@@ -422,23 +446,61 @@ async function probeStart(config, tspcommand) {
                     break;
 
                 case "ANASLOW":
+
                     /* When ANASLOW arrives,i need to keep the bitrate evalauted by the ANALYZEBITRATE. 
                     for each PID, cehck if it is already in the analyze.table. 
                     - if YES, set the current pid to the value already set
                     - if not, set the bitrate to 0. It will be updated by the ANALYZEBITRATE */
-                    j.pids.forEach(jPid => {
-                        //jPid.description = jPid.description;
-                        let allTIndex = allTables.analyze?.pids?.findIndex(x => x.id === jPid.id);
-                        if (allTIndex !== -1 && allTIndex !== undefined) {
-                            const analyzePid = allTables.analyze.pids[allTIndex]
-                            jPid.bitrate = analyzePid.bitrate;
-                            jPid.missingCount = analyzePid.missingCount;
-                        } else { jPid.bitrate = convertBitrate(0) };
+
+                    //at the beginning, assign to allTables.analyze the value of "j"
+                    // only the first time to populated it. this is why i check if "pid" key exists.
+                    if (!allTables.analyze.pids) {
+                        allTables.analyze = j;
+                    } else {
+                        //Add services to analyze
+                        allTables.analyze.services = j.services;
+                    }
+
+                    /* j.pids.forEach(jPid => {
+                         
+                         let allTIndex = allTables.analyze?.pids?.findIndex(x => x.id === jPid.id);
+                         if (allTIndex !== -1 && allTIndex !== undefined) {
+                             const analyzePid = allTables.analyze.pids[allTIndex];
+                             jPid.bitrate = analyzePid.bitrate;
+                             jPid.missingCount = analyzePid.missingCount;
+                         } else { jPid.bitrate = convertBitrate(0) };
+                     })*/
+
+                    //Add services to analyze
+                    //allTables.analyze.services = j.services;
+
+                    //get the servicelist bitrate of the services
+                    //allTables.servicelist = getServicelist(allTables, j);
+
+                    const sList = getServicelist(allTables.sdt, j);
+
+                    sList.forEach(k => {
+                        const sBitrate = allTables.servicelist.find(x => x.service_id === k.service_id);
+                        if (sBitrate) {
+                            k.bitrate = sBitrate.bitrate
+                        } else {
+                            //k.bitrate = convertBitrate(0)
+                        }
+
                     })
-                    allTables.analyze = j;
+
+                    allTables.servicelist = [...sList];
+
+                   
+
+
+
+
 
                     //CC Error: in allTables.analyze.pids.packets.discontinuities
                     allTables.stats.cc = ccError(allTables.analyze.pids);
+
+                    console.log("Num services: " + j.services.length)
 
                     break;
 

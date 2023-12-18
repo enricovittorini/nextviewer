@@ -2,7 +2,7 @@
 'use client'
 import { useState, useEffect } from 'react';
 //import convertBitrate from './utils/convertBitrate';
-import { getServiceTypeHuman } from './serviceType';
+import { getServiceTypeHuman } from '../lib/serviceType';
 
 
 function Properties({ data }) {

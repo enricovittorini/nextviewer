@@ -1,7 +1,7 @@
 
 'use client'
 import { useState, useEffect } from 'react';
-import getEsIcon from './getEsIcon'
+import getEsIcon from '../lib/getEsIcon'
 
 function Properties({ data }) {
     let serviceId = data.service_id;

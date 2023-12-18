@@ -9,7 +9,7 @@ function srtVesion() {
             const srtCommand = spawn('tsp', ['--version=srt']);
             srtCommand.stderr.on('data', async (line) => {
                 const versionMatch = String(line).match(/version\s+([\d.]+)/);
-                const srtVer = versionMatch[1] || null;
+                const srtVer = versionMatch[1] ?? null;
 
                 resolve(srtVer);
 

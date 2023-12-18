@@ -1,7 +1,7 @@
 
 'use client'
 import { useState, useEffect } from 'react';
-import getPidType from './getPidType';
+import getPidType from '../lib/getPidType';
 
 
 function renderTable(data) {

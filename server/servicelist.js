@@ -31,10 +31,11 @@ const convertBitrate = require('./convertBitrate')
 const getPidType = require('./getPidType');
 const { getServiceType, getServiceTypeHuman } = require('./getServiceType');
 
+
 function getServiceProp(service, el) {
-    
-    //const service = services.find(k => k.id === sid);
-    el.bitrate = service?.bitrate ? convertBitrate(service.bitrate) : convertBitrate(0);
+
+
+    //el.bitrate = service?.bitrate ? convertBitrate(service.bitrate) : convertBitrate(0);
     el.service_pcr_pid = service["pcr-pid"] || null;
     el.service_pmt_pid = service["pmt-pid"] || null;
     el.scrambled = service["is-scrambled"];
@@ -83,31 +84,30 @@ function getServiceSDTprop(sdt, sid, el) {
     el.service_type = service?.service_type;
     el.service_icon = service?.service_type && getServiceType(service.service_type);
     el.service_description = service?.service_type && getServiceTypeHuman(service.service_type);
-    
+
 }
 
-function getPidProperties(pids, x, elcomp) {
+function getPidProperties(pids, x, elcomp, el) {
 
 
     const component = {}
     const pid = pids.find(k => k.id === x);
+    el.bitrate = el.bitrate + pid.bitrate;
 
 
     // Do not include PMT, ECM and  EMM in the component list
-    if (!pid.pmt && !pid.ecm && !pid.emm) {
+    if (!pid?.pmt && !pid?.ecm && !pid?.emm) {
         let [icon, scrambledIcon, description, descriptionDetails] = getPidType(pid);
-       
+
         component.id = x;
-        component.pcr = pid["packets"]?.pcr > 0 ? true : false ;
-        component.is_scrambled = pid["is-scrambled"];
-        component.bitrate = pid["bitrate"]; // it is already converted when it arrives here
-        component.video = pid["video"];
+        component.pcr = pid?.["packets"]?.pcr > 0 ? true : false;
+        component.is_scrambled = pid?.["is-scrambled"];
+        component.bitrate = convertBitrate(pid?.["bitrate"]);
+        component.video = pid?.["video"];
         component.icon = icon;
         component.icon_scrambled = scrambledIcon;
         component.description = description;
         component.descriptionDetails = descriptionDetails;
-        //component.description = pid["description"];
-        //component.description = pid["description"].substring(0, pid["description"].indexOf("(")).trim() || pid["description"];
 
         elcomp.push(component)
     }
@@ -115,47 +115,55 @@ function getPidProperties(pids, x, elcomp) {
 
 }
 
-function getServicelist(sdt, analyze) {
+function getServicelist(sdt, jAnalyze) {
 
     const list = [];
-    const pids = analyze?.pids;
-    const services = analyze?.services?.filter(k => k.bitrate !== 0);
 
-    // check that SDT tables has elements if not exit
+    if (Object.keys(sdt).length === 0){
+        return list
+    }
+    
+    const pids = jAnalyze?.pids;
+    //const services = jAnalyze?.services?.filter(k => k.bitrate !== 0);
+
+    // Keep only the services listed in the SDT as i use "-c" option in the SLOWANA
+    const sdtServices = sdt["#nodes"].filter(k => k["#name"] === "service" && k.service_id).map(k=> k.service_id);
+    const services = jAnalyze.services.filter(item => sdtServices.includes(item.id));
+    
+    
 
     services && services.map(k => {
-
-             
         const el = {};
-        
+
         el.components = [];
-        if (Object.keys(sdt).length > 0) {
-            getServiceSDTprop(sdt, k.id, el);
-            
-            //const servicePids = getServiceProp(services, k.id, el);
-        } else{
-
-            getServiceAnalyzeProp(k, el)
-            //const servicePids = getServiceProp(services, k.id, el);
-        }
-
-        //
+        //el.bitrate = allTables.analyze.services?.find(j => k.id === j.id).bitrate || 0;
         el.scrambled_icon = k["is-scrambled"] ? "bi bi-lock" : null;
         el.lcn = k.lcn || null;
+
+        // check that SDT tables has elements
+        if (Object.keys(sdt).length > 0) {
+
+            getServiceSDTprop(sdt, k.id, el);
+
+        } else {
+
+            getServiceAnalyzeProp(k, el)
+        }
+
         //Now get the info on the components:
         const servicePids = getServiceProp(k, el);
         servicePids && servicePids.forEach(x => {
 
-            getPidProperties(pids, x, el.components);
+            getPidProperties(pids, x, el.components, el);
 
         })
 
-       
+        //el.bitrate = convertBitrate(k.bitrate)
 
         list.push(el);
 
     })
-    
+
     return (list)
 
 

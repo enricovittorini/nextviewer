@@ -1,11 +1,17 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import React,{ useState, useEffect, useMemo } from 'react';
 
 
 function Properties({ data }) {
-    let serviceId = data.service_id;
+    if (!data) {
+        return null;
+    }
+
+    console.log("Prop re-render")
+    
+    let serviceId = data?.service_id;
     let node = data;
 
     return (Object.keys(node).map(k => {
@@ -19,7 +25,9 @@ function Properties({ data }) {
 }
 
 
-function renderTable (data) {
+function renderTable(data) {
+
+   
     if (!data) {
         return null;
     }
@@ -47,36 +55,58 @@ function renderTable (data) {
 
 };
 
+function TableName({ pids }) {
+    const [bitrate, setBitrate] = useState(0);
+    useEffect(() => {
+        setBitrate(pids?.find(k => k.id === 0).bitrate || "0 Kb/s");
+    }, [pids])
 
-function Pat({ data }) {
+    return (
+        <>
+            <summary>PAT - {bitrate}</summary>
+        </>
+    )
+}
 
+const PropertiesChild = React.memo(Properties);
 
-    var [patTable, setTable] = useState(data.pat);
+function Pat({ data, pids }) {
 
+   
+    const [patTable, setTable] = useState(data.pat);
+    //const [bitrate, setBitrate] = useState(0);
+
+    /*const patTable =  useMemo(() => {
+        return data.pat
+    }, [data.pat])*/
+
+  
+    
 
     useEffect(() => {
-        setTable(data.pat); 
+        setTable(data.pat);
+        
     }, [data.pat]);
 
 
-
-
+    const memoValue = useMemo(() => (patTable), [data.pat]);
 
     if (patTable && Object.keys(patTable).length > 0) {
-        //let bitrate = Intl.NumberFormat('en-US', { style: 'unit', unit: "kilobit-per-second", maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(patTable["#nodes"][0]["bitrate"])
-        //const bitrate = convertBitrate(patTable["#nodes"][0]["bitrate"])
-        const bitrate = patTable["#nodes"][0]["bitrate"];
+
+        //const bitrate = patTable["#nodes"][0]["bitrate"];
         return (
             !!patTable["#name"] ?
 
                 <ul className="tree">
                     <li>
                         <details>
-                            <summary>{patTable["#name"]} - {bitrate}</summary>
+                            {/*<summary>{patTable["#name"]} - {bitrate}</summary>*/}
+                            <TableName pids={pids} />
+
                             <ul>
                                 {patTable["#nodes"].map((k, i) => (i !== 0 ? renderTable(k) : null))}
 
-                                <Properties data={patTable} />
+                                <PropertiesChild data={memoValue} />
 
                             </ul>
                         </details>
@@ -85,24 +115,8 @@ function Pat({ data }) {
                 </ul>
 
                 : null)
-    } else {
-      /*  return (
-
-            <ul className="tree">
-                <li>
-                    <details>
-                        <summary>PAT - 0 kb/s</summary>
-                    </details>
-                </li>
-
-            </ul>
-        )*/
-    };
+    } 
 }
-
-
-
-
 
 
 export default Pat;
