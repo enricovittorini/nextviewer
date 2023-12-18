@@ -79,15 +79,15 @@ function createEIT(eit) {
 
         //Get Short Description
         event.short_description = {}
-        const shortArr = el["#nodes"].find( k => k["#name"] === "short_event_descriptor");
+        const shortArr = el?.["#nodes"].find( k => k["#name"] === "short_event_descriptor");
         
-        const nodeName = shortArr["#nodes"].find(k => k["#name"] === "event_name");
-        event.short_description.name = nodeName["#nodes"][0];
+        const nodeName = shortArr?.["#nodes"].find(k => k["#name"] === "event_name");
+        event.short_description.name = nodeName?.["#nodes"][0];
 
-        const nodeDesc = shortArr["#nodes"].find(k => k["#name"] === "text");
-        event.short_description.description = nodeDesc["#nodes"][0];
+        const nodeDesc = shortArr?.["#nodes"].find(k => k["#name"] === "text");
+        event.short_description.description = nodeDesc?.["#nodes"][0];
 
-        event.short_description.language_code = shortArr.language_code;
+        event.short_description.language_code = shortArr?.language_code;
 
         //Get Long Description
         const LongtArr = el["#nodes"].filter( k => k["#name"] === "extended_event_descriptor");

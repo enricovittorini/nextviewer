@@ -87,7 +87,7 @@ function EitActual({ data, pids }) {
     useEffect(() => {
 
         setEit(data);
-        setBitrate(pids?.find(k => k.id === 18).bitrate || 0);
+        setBitrate(pids?.find(k => k.id === 18)?.bitrate || 0);
     }, [data, pids])
 
     /*useEffect(() => {
