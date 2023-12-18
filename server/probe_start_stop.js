@@ -19,7 +19,7 @@ const generalCommand = [
     '-P', 'bitrate_monitor', '-p', '1', '-t', '1', '--json-line=BITRATE',
     '-P', 'tables', '--log-json-line=TABLES', '--psi-si', '--pid', '18', '--pid', '20', '--invalid-versions', '--default-pds', '0x00000028',
     '-P', 'analyze', '--unreferenced-pid-list', '-i', '1', '--json-line=ANABITRATE',
-    '-P', 'analyze', '--unreferenced-pid-list', '-i', '5', '--json-line=ANASLOW',
+    '-P', 'analyze', '--unreferenced-pid-list', '-c', '-i', '5', '--json-line=ANASLOW',
     // '-P', 'continuity','--json-line=CONTINUITY'
 ];
 
@@ -455,27 +455,12 @@ async function probeStart(config, tspcommand) {
                     //at the beginning, assign to allTables.analyze the value of "j"
                     // only the first time to populated it. this is why i check if "pid" key exists.
                     if (!allTables.analyze.pids) {
+                        console.log("PIDs is zero")
                         allTables.analyze = j;
                     } else {
                         //Add services to analyze
                         allTables.analyze.services = j.services;
                     }
-
-                    /* j.pids.forEach(jPid => {
-                         
-                         let allTIndex = allTables.analyze?.pids?.findIndex(x => x.id === jPid.id);
-                         if (allTIndex !== -1 && allTIndex !== undefined) {
-                             const analyzePid = allTables.analyze.pids[allTIndex];
-                             jPid.bitrate = analyzePid.bitrate;
-                             jPid.missingCount = analyzePid.missingCount;
-                         } else { jPid.bitrate = convertBitrate(0) };
-                     })*/
-
-                    //Add services to analyze
-                    //allTables.analyze.services = j.services;
-
-                    //get the servicelist bitrate of the services
-                    //allTables.servicelist = getServicelist(allTables, j);
 
                     const sList = getServicelist(allTables.sdt, j);
 
@@ -491,16 +476,9 @@ async function probeStart(config, tspcommand) {
 
                     allTables.servicelist = [...sList];
 
-                   
-
-
-
-
 
                     //CC Error: in allTables.analyze.pids.packets.discontinuities
-                    allTables.stats.cc = ccError(allTables.analyze.pids);
-
-                    console.log("Num services: " + j.services.length)
+                    allTables.stats.cc = ccError(j.pids);
 
                     break;
 

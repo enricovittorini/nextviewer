@@ -9,8 +9,7 @@ function Properties({ data }) {
         return null;
     }
 
-    console.log("Prop re-render")
-    
+   
     let serviceId = data?.service_id;
     let node = data;
 
@@ -89,7 +88,7 @@ function Pat({ data, pids }) {
     }, [data.pat]);
 
 
-    const memoValue = useMemo(() => (patTable), [data.pat]);
+    //const memoValue = useMemo(() => (patTable), [data.pat]);
 
     if (patTable && Object.keys(patTable).length > 0) {
 
@@ -106,7 +105,7 @@ function Pat({ data, pids }) {
                             <ul>
                                 {patTable["#nodes"].map((k, i) => (i !== 0 ? renderTable(k) : null))}
 
-                                <PropertiesChild data={memoValue} />
+                                <PropertiesChild data={patTable} />
 
                             </ul>
                         </details>

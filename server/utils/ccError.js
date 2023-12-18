@@ -9,7 +9,7 @@ function ccError(pids) {
             return totalDiscontinuities;
         }, cc);
     }
-
+    console.log("CC Error: " + cc)
     return cc;
 }
 
