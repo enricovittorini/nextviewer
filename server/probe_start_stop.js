@@ -11,7 +11,7 @@ const { setMaxIdleHTTPParsers } = require('http');
 //const getPidDescription = require('./getPidDescription')
 
 const probeCtrlPort = 3001; // Probe process control port
-const allTables = { "pat": {}, "cat": {}, "pmt": [], "sdt": {}, "sdtOther": [], "bat": {}, "nit": {}, "eitActual": { "eitpf": [], "eitsched": [] }, "analyze": {}, "servicelist": [], "bitrate": {}, "tsbitrate": {}, "srt": {}, "stats": {}, "info": {} };
+const allTables = { "pat": {}, "cat": {}, "pmt": [], "sdt": {}, "sdtOther": [], "bat": {}, "nit": {}, "eitActual": { "eitpf": [], "eitsched": [] }, "analyze": {}, "servicelist": [], "bitrate": {}, "tsbitrate": {}, "srt": {}, "stats": {}, "info": {}, "scte35": [] };
 const removePidTthreshold = 30; // is PID is missing more than 10 cycles of evalauiton (10s). remove it
 
 
@@ -20,7 +20,7 @@ const generalCommand = [
     '-P', 'tables', '--log-json-line=TABLES', '--psi-si', '--pid', '18', '--pid', '20', '--invalid-versions', '--default-pds', '0x00000028',
     '-P', 'analyze', '--unreferenced-pid-list', '-i', '1', '--json-line=ANABITRATE',
     '-P', 'analyze', '--unreferenced-pid-list', '-c', '-i', '5', '--json-line=ANASLOW',
-    // '-P', 'continuity','--json-line=CONTINUITY'
+    '-P', 'splicemonitor', '--json-line=SCTE35', '--select-commands', '1-255'
 ];
 
 
@@ -86,6 +86,11 @@ function srtCommand(config) {
     }
 }
 
+function splicemonitor(config) {
+    if (config.scte35) {
+
+    }
+}
 
 
 /* PROBE START */
@@ -505,6 +510,14 @@ async function probeStart(config, tspcommand) {
                      allTables.stats.cc = (allTables.stats.cc ?? 0) + 1;
                      break;
                      */
+                case "SCTE35":
+                    if (j["#name"] === "splice_information_table") {
+                        console.log(j);
+                        allTables.scte35.push(j);
+                    } else {
+                        console.log("NOOOOOOO")
+                    }
+                    break;
                 default:
                     break;
             }

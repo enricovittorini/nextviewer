@@ -64,6 +64,8 @@ function getServiceAnalyzeProp(service, el) {
     el.service_icon = el.service_type && getServiceType(el.service_type);
     el.service_description = el.service_type && getServiceTypeHuman(el.service_type);
     el.scrambled_icon = service["is-scrambled"] ? "bi bi-key" : null;
+
+    return service.pids;
 }
 
 
@@ -118,17 +120,24 @@ function getPidProperties(pids, x, elcomp, el) {
 function getServicelist(sdt, jAnalyze) {
 
     const list = [];
+    let services = [];
 
-    if (Object.keys(sdt).length === 0){
-        return list
+    if (Object.keys(sdt).length > 0){
+        const sdtServices = sdt["#nodes"].filter(k => k["#name"] === "service" && k.service_id).map(k=> k.service_id);
+        services = jAnalyze.services.filter(item => sdtServices.includes(item.id));
+
+    } else {
+        services = jAnalyze?.services?.filter(k => k.bitrate !== 0);
     }
     
     const pids = jAnalyze?.pids;
     //const services = jAnalyze?.services?.filter(k => k.bitrate !== 0);
 
+
+
     // Keep only the services listed in the SDT as i use "-c" option in the SLOWANA
-    const sdtServices = sdt["#nodes"].filter(k => k["#name"] === "service" && k.service_id).map(k=> k.service_id);
-    const services = jAnalyze.services.filter(item => sdtServices.includes(item.id));
+    //const sdtServices = sdt["#nodes"].filter(k => k["#name"] === "service" && k.service_id).map(k=> k.service_id);
+    //const services = jAnalyze.services.filter(item => sdtServices.includes(item.id));
     
     
 
