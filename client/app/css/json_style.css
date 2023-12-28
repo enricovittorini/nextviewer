@@ -1,0 +1,40 @@
+.renderjson a {
+    text-decoration: none;
+}
+
+.renderjson .disclosure {
+    color: crimson;
+    font-size: 150%;
+}
+
+.renderjson .syntax {
+    color: grey;
+}
+
+.renderjson .string {
+    color: lightgrey;
+}
+
+.renderjson .number {
+    color: cyan;
+}
+
+.renderjson .boolean {
+    color: violet;
+}
+
+.renderjson .key {
+    color: deepskyblue;
+}
+
+.renderjson .keyword {
+    color: blue;
+}
+
+.renderjson .object.syntax {
+    color: springgreen;
+}
+
+.renderjson .array.syntax {
+    color: orange;
+}

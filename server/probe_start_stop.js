@@ -8,11 +8,14 @@ const convertBitrate = require('./convertBitrate');
 const ccError = require('./utils/ccError');
 const createEIT = require('./utils/createEIT');
 const { setMaxIdleHTTPParsers } = require('http');
+const formatSCTE35ToJson = require('./utils/formatSCTE35ToJson');
 //const getPidDescription = require('./getPidDescription')
 
 const probeCtrlPort = 3001; // Probe process control port
 const allTables = { "pat": {}, "cat": {}, "pmt": [], "sdt": {}, "sdtOther": [], "bat": {}, "nit": {}, "eitActual": { "eitpf": [], "eitsched": [] }, "analyze": {}, "servicelist": [], "bitrate": {}, "tsbitrate": {}, "srt": {}, "stats": {}, "info": {}, "scte35": [] };
 const removePidTthreshold = 30; // is PID is missing more than 10 cycles of evalauiton (10s). remove it
+const maxSCTE35 = 50;
+let scteIndex = 0;
 
 
 const generalCommand = [
@@ -20,7 +23,7 @@ const generalCommand = [
     '-P', 'tables', '--log-json-line=TABLES', '--psi-si', '--pid', '18', '--pid', '20', '--invalid-versions', '--default-pds', '0x00000028',
     '-P', 'analyze', '--unreferenced-pid-list', '-i', '1', '--json-line=ANABITRATE',
     '-P', 'analyze', '--unreferenced-pid-list', '-c', '-i', '5', '--json-line=ANASLOW',
-    '-P', 'splicemonitor', '--json-line=SCTE35', '--select-commands', '1-255'
+    '-P', 'splicemonitor', '--json-line=SCTE35', '--select-commands', '1-255','--time-stamp',
 ];
 
 
@@ -74,7 +77,7 @@ function srtCommand(config) {
 
         let params = [
             '-I', 'srt', "--" + config.type, config.interface + ":" + config.port, '--transtype', 'live', '--messageapi',
-            '--statistics-interval', '1000', '--json-line'
+            '--statistics-interval', '1000', '--json-line=SRT'
         ];
 
         if (parseInt(config.encryption) !== 0) {
@@ -86,11 +89,7 @@ function srtCommand(config) {
     }
 }
 
-function splicemonitor(config) {
-    if (config.scte35) {
 
-    }
-}
 
 
 /* PROBE START */
@@ -171,10 +170,7 @@ async function probeStart(config, tspcommand) {
                         reparseTable = false;
                     }
 
-
-                    //
-
-                    //bitrate monitor is the most frequent plugin. Send allTables  only here
+                    //Send allTables only here
                     sendEventsToAll('allTables', allTables);
 
                     break;
@@ -380,7 +376,7 @@ async function probeStart(config, tspcommand) {
 
                     allTables.servicelist.forEach((k, index) => {
 
-                        const service = j.services.find(jSid => jSid.id === k.service_id);
+                        const service = j.services?.find(jSid => jSid.id === k.service_id);
                         if (service) {
                             allTables.servicelist[index].bitrate = convertBitrate(service.bitrate);
                         } else {
@@ -464,7 +460,7 @@ async function probeStart(config, tspcommand) {
                         allTables.analyze = j;
                     } else {
                         //Add services to analyze
-                        allTables.analyze.services = j.services;
+                        allTables.analyze.services = j?.services;
                     }
 
                     const sList = getServicelist(allTables.sdt, j);
@@ -512,10 +508,14 @@ async function probeStart(config, tspcommand) {
                      */
                 case "SCTE35":
                     if (j["#name"] === "splice_information_table") {
-                        console.log(j);
-                        allTables.scte35.push(j);
-                    } else {
-                        console.log("NOOOOOOO")
+                        console.log(JSON.stringify(j));
+                        const scteFormatted = formatSCTE35ToJson(j, scteIndex);
+                        scteIndex++;
+                        
+                        allTables.scte35 = [...allTables.scte35.slice(allTables.scte35.length - maxSCTE35)];
+                        //allTables.scte35.push(j);
+                        allTables.scte35.push(scteFormatted);
+                        
                     }
                     break;
                 default:

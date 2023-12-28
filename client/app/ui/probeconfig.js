@@ -10,17 +10,25 @@ function ProbeIp({ config }) {
 
     return (
         <>
-            <div className='col-md-3'>
-                <label htmlFor="inputState" className="form-label">SSM</label>
-                <input type="text" className="form-control form-control-sm" name="ssm" value={ssm} onChange={e => setSsm(e.target.value)}></input>
+            <div className='col-md-3 my-1'>
+                <div className='form-floating'>
+                    <input type="text" className="form-control" placeholder="SSM" id="floatingSSM" name="ssm" value={ssm} onChange={e => setSsm(e.target.value)}></input>
+                    <label htmlFor="floatingSSM">SSM</label>
+                </div>
+
             </div>
-            <div className='col-md-3'>
-                <label htmlFor="inputState" className="form-label">Multicast</label>
-                <input type="text" className="form-control form-control-sm" name="address" value={address} onChange={e => setAddress(e.target.value)}></input>
+            <div className='col-md-3 my-1'>
+                <div className='form-floating'>
+                    <input type="text" className="form-control" id="inputStateMulticast" placeholder="Multicast" name="address" value={address} onChange={e => setAddress(e.target.value)}></input>
+                    <label htmlFor="inputStateMulticast" className="form-label">Multicast</label>
+                </div>
             </div>
-            <div className='col-md-2'>
-                <label htmlFor="inputState" className="form-label" >Port</label>
-                <input type="text" className="form-control form-control-sm" name="port" value={port} onChange={e => setPort(e.target.value)}></input>
+            <div className='col-md-3 my-1'>
+                <div className='form-floating'>
+                    <input type="text" className="form-control" placeholder="port" name="port" value={port} onChange={e => setPort(e.target.value)}></input>
+                    <label htmlFor="inputState" className="form-label" >Port</label>
+
+                </div>
             </div>
         </>
     )
@@ -57,34 +65,46 @@ function ProbeSrt({ config, probeType }) {
 
     return (
         <>
-            <div className='col-md-6'>
-                <label htmlFor="inputState" className="form-label">Remote Address</label>
-                <input type="text" className="form-control form-control-sm" name="address" value={probeType == "caller" ? address : null} onChange={e => setAddress(e.target.value)} placeholder='remote_host:port' disabled={probeType === 'listener'}></input>
+            <div className='col-md-6 my-1'>
+                <div className='form-floating'>
+                    <input type="text" className="form-control" placehodler="Remote Address" name="address" value={probeType == "caller" ? address : ''} onChange={e => setAddress(e.target.value)} placeholder='remote_host:port' disabled={probeType === 'listener'}></input>
+                    <label htmlFor="inputState" className="form-label">Remote Address</label>
+                </div>
             </div>
 
-            <div className='col-md-2'>
-                <label htmlFor="inputState" className="form-label">LocalPort</label>
-                <input type="text" className="form-control form-control-sm" name="port" value={probeType == "listener" ? port : null} onChange={e => setPort(e.target.value)} disabled={probeType === 'caller'}></input>
+            <div className='col-md-3 my-1'>
+                <div className='form-floating'>
+                    <input type="text" className="form-control" placeholder="Port" name="port" value={probeType == "listener" ? port : ''} onChange={e => setPort(e.target.value)} disabled={probeType === 'caller'}></input>
+                    <label htmlFor="inputState" className="form-label">Local Port</label>
+
+                </div>
             </div>
 
-            <div className='col-md-3'>
-                <label htmlFor="inputState" className="form-label">Latency (ms)</label>
-                <input type="text" className="form-control form-control-sm" name="latency" value={latency} onChange={e => setLatency(e.target.value)}></input>
+            <div className='col-md-3 my-1'>
+                <div className='form-floating'>
+                    <input type="text" className="form-control form-control-sm" placeholder="Latency" name="latency" value={latency} onChange={e => setLatency(e.target.value)}></input>
+                    <label htmlFor="inputState" className="form-label">Latency (ms)</label>
+
+                </div>
             </div>
 
-            <div className='col-md-3'>
-                <label htmlFor="type" className="form-label">Encryption</label>
-                <select className="form-select form-select-sm" name="encryption" value={encryption} onChange={e => { setEncryption(e.target.value); if (e.target.value === "0") { setPassphrase('') } }}>
-                    <option key="noenc" value="0">None</option>
-                    <option key="aes128" value="16">AES-128</option>
-                    <option key="aes192" value="24">AES-192</option>
-                    <option key="aes256" value="32">AES-256</option>
-                </select>
+            <div className='col-md-3 my-1'>
+                <div className='form-floating'>
+                    <select className="form-select form-select-sm" name="encryption" placehodler="Encryption" value={encryption} onChange={e => { setEncryption(e.target.value); if (e.target.value === "0") { setPassphrase('') } }}>
+                        <option key="noenc" value="0">None</option>
+                        <option key="aes128" value="16">AES-128</option>
+                        <option key="aes192" value="24">AES-192</option>
+                        <option key="aes256" value="32">AES-256</option>
+                    </select>
+                    <label htmlFor="type" className="form-label">Encryption</label>
+                </div>
             </div>
 
-            <div className='col-md-3'>
-                <label htmlFor="inputState" className="form-label">Passphrase</label>
-                <input type="password" className="form-control form-control-sm" name="passphrase" value={passphrase} onChange={e => setPassphrase(e.target.value)} disabled={encryption === '0'}></input>
+            <div className='col-md-3 my-1'>
+                <div className='form-floating'>
+                <input type="password" className="form-control form-control-sm" name="passphrase" placeholder="Passphrase" value={passphrase} onChange={e => setPassphrase(e.target.value)} disabled={encryption === '0'}></input>
+                    <label htmlFor="inputState" className="form-label">Passphrase</label>
+                </div>
             </div>
         </>
     )
@@ -226,31 +246,37 @@ function ProbeConfig({ data }) {
     return (
         <>
 
-            <div className='row g-2 mb-3'>
+            <div className='row g-2 mb-2'>
                 <div className="col-12 col-md-12 col-lg-11">
                     <form onSubmit={handleSubmit}>
                         <fieldset className="row g-3" disabled={formStatus === 'disabled'}>
                             <div className='col-12 col-md-12 col-lg-4'>
                                 <div className='row'>
-                                    <div className='col'>
-                                        <label htmlFor="type" className="form-label" >Type</label>
-                                        <select className="form-select form-select-sm" name="type" value={probeType} onChange={e => setProbeType(e.target.value)}>
-                                            <option value="ip">IP</option>
-                                            <option value="dtu245">DTU-245</option>
-                                            <option value="caller">SRT Caller</option>
-                                            <option value="listener">SRT Listener</option>
-                                        </select>
+                                    <div className='col my-1'>
+                                        <div className='form-floating'>
+                                            <select className="form-select" name="type" value={probeType} onChange={e => setProbeType(e.target.value)}>
+                                                <option value="ip">IP</option>
+                                                <option value="dtu245">DTU-245</option>
+                                                <option value="caller">SRT Caller</option>
+                                                <option value="listener">SRT Listener</option>
+                                            </select>
+                                            <label htmlFor="type" className="form-label" >Type</label>
+
+                                        </div>
                                     </div>
 
-                                    <div className='col'>
-                                        <label htmlFor="type" className="form-label" >Interface</label>
-                                        <select className="form-select form-select-sm" name="interface" value={probeInterface} onChange={e => setInterface(e.target.value)} disabled={probeType === "dtu245"  }>
-                                            {
-                                                config.interfaceList && config.interfaceList.map((k, index) => (
-                                                    <option key={index} value={k}>{k}</option>
-                                                ))
-                                            }
-                                        </select>
+                                    <div className='col my-1'>
+                                        <div className='form-floating'>
+                                            <select className="form-select" name="interface" value={probeInterface} onChange={e => setInterface(e.target.value)} disabled={probeType === "dtu245"}>
+                                                {
+                                                    config.interfaceList && config.interfaceList.map((k, index) => (
+                                                        <option key={index} value={k}>{k}</option>
+                                                    ))
+                                                }
+                                            </select>
+                                            <label htmlFor="type" className="form-label">Interface</label>
+
+                                        </div>
                                     </div>
                                 </div>
                             </div>
